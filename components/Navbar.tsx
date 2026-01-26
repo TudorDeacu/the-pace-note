@@ -92,7 +92,7 @@ export default function Navbar() {
                     )}
                     <button
                         onClick={() => setLanguage(language === "RO" ? "EN" : "RO")}
-                        className="text-sm font-semibold leading-6 text-white hover:text-red-500 transition-colors border border-zinc-700 px-3 py-1 rounded ml-4 hover:bg-zinc-800"
+                        className="text-sm font-semibold leading-6 text-zinc-300 hover:text-red-500 transition-colors uppercase tracking-widest ml-4"
                     >
                         {language}
                     </button>
