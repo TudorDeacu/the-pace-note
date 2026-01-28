@@ -32,7 +32,7 @@ export default function Home() {
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
                 href="/blog"
-                className="rounded-none bg-red-600 px-8 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-red-500 hover:scale-105 transition-all uppercase tracking-widest"
+                className="rounded-none bg-[#E9482F] px-8 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-red-500 hover:scale-105 transition-all uppercase tracking-widest"
               >
                 {t.home.hero_cta_blog}
               </Link>
@@ -62,7 +62,7 @@ export default function Home() {
               </div>
               {/* Abstract/Texture Image Placeholder */}
               <div className="relative h-64 lg:h-full min-h-[400px] bg-zinc-900 overflow-hidden grayscale">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2566&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
+                <div className="absolute inset-0 bg-[url('/images/visiontpn.jpeg')] bg-cover bg-center opacity-50"></div>
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function Home() {
         {/* Orange Tainted Dreams Banner */}
         <div className="bg-black w-full py-12 flex items-center justify-center border-b border-zinc-900">
           <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter text-center">
-            {t.home.dreams_title_1} <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">{t.home.dreams_title_2}</span>
+            {t.home.dreams_title_1} <span className="text-transparent bg-clip-text bg-[#E9482F]">{t.home.dreams_title_2}</span>
           </h2>
         </div>
 
@@ -84,7 +84,7 @@ export default function Home() {
               <h3 className="text-white text-4xl font-bold uppercase whitespace-pre-line">{t.home.story_title}</h3>
             </div>
           </div>
-          <div className="bg-[#EB4C36] p-12 lg:p-24 flex flex-col justify-center">
+          <div className="bg-[#E9482F] p-12 lg:p-24 flex flex-col justify-center">
             <h2 className="text-white text-4xl font-bold uppercase mb-8">{t.home.vision_title}</h2> {/* Reusing Vision title for now, or could use Story title if different */}
             <p className="text-white/90 text-lg leading-relaxed mb-8 font-medium">
               {t.home.story_desc}

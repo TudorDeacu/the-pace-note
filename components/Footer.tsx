@@ -14,16 +14,16 @@ export default function Footer() {
                         <p className="text-zinc-500 text-sm mt-2">{t.footer.tagline}</p>
                     </div>
                     <div className="flex flex-col gap-6 items-center md:items-start">
-                        <div className="flex gap-6 text-sm text-zinc-400">
-                            <Link href="/about" className="hover:text-red-600 transition-colors uppercase tracking-widest">{t.nav.about}</Link>
-                            <Link href="/newsletter" className="hover:text-red-600 transition-colors uppercase tracking-widest">{t.nav.newsletter}</Link>
-                            <Link href="/contact" className="hover:text-red-600 transition-colors uppercase tracking-widest">{t.nav.contact}</Link>
+                        <div className="flex gap-6 text-sm text-zinc-400 justify-center">
+                            <Link href="/about" className="hover:text-red-600 transition-colors uppercase tracking-widest center">{t.nav.about}</Link>
+                            <Link href="/newsletter" className="hover:text-red-600 transition-colors uppercase tracking-widest center">{t.nav.newsletter}</Link>
+                            <Link href="/contact" className="hover:text-red-600 transition-colors uppercase tracking-widest center">{t.nav.contact}</Link>
                         </div>
-                        <div className="flex gap-6 text-sm text-zinc-400">
+                        <div className="flex gap-6 text-sm text-zinc-400 justify-center">
                             {/* Social placeholders or real links if provided */}
-                            <Link href="#" className="hover:text-red-600 transition-colors uppercase tracking-widest">Instagram</Link>
-                            <Link href="#" className="hover:text-red-600 transition-colors uppercase tracking-widest">Facebook</Link>
-                            <Link href="#" className="hover:text-red-600 transition-colors uppercase tracking-widest">YouTube</Link>
+                            <Link href="https://www.instagram.com/thepacenote/" className="hover:text-red-600 transition-colors uppercase tracking-widest center">Instagram</Link>
+                            <Link href="https://www.facebook.com/profile.php?id=61583479544402" className="hover:text-red-600 transition-colors uppercase tracking-widest center">Facebook</Link>
+                            <Link href="https://www.youtube.com/channel/UC1hSXkxGPGsaXFuNtKLIjvA" className="hover:text-red-600 transition-colors uppercase tracking-widest center">YouTube</Link>
                         </div>
                     </div>
                 </div>
