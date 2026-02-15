@@ -11,12 +11,17 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isAdmin: boolean;
     loading: boolean;
-    login: (email: string, password: string) => Promise<{ error: string | null }>;
+    login: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: string | null }>;
     signup: (email: string, password: string, firstName: string, lastName: string, username: string) => Promise<{ error: string | null }>;
     logout: () => Promise<void>;
+    signInWithGoogle: () => Promise<{ error: string | null }>;
+    signInWithApple: () => Promise<{ error: string | null }>;
+    signInWithFacebook: () => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -66,7 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
     }, []);
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string, rememberMe: boolean = true) => {
+        // Persistence is handled by Supabase SSR via cookies automatically.
+        // The 'rememberMe' functionality would require server-side cookie options or a different strategy with SSR.
+        // For now, we default to standard persistent sessions.
+
         const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -88,9 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     first_name: firstName,
                     last_name: lastName,
                     username: username,
-                    // role will be default 'user' via database default or trigger if set up, 
-                    // generally Supabase Auth meta data is separate from profiles table, 
-                    // but we rely on a trigger to create the profile usually.
                 }
             }
         });
@@ -108,8 +114,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push("/login");
     };
 
+    const signInWithGoogle = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`
+            }
+        });
+        if (error) return { error: error.message };
+        return { error: null };
+    };
+
+    const signInWithApple = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'apple',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`
+            }
+        });
+        if (error) return { error: error.message };
+        return { error: null };
+    };
+
+    const signInWithFacebook = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'facebook',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`
+            }
+        });
+        if (error) return { error: error.message };
+        return { error: null };
+    };
+
     return (
-        <AuthContext.Provider value={{ user, role, isAuthenticated: !!user, isAdmin: role === 'admin', loading, login, signup, logout }}>
+        <AuthContext.Provider value={{
+            user,
+            role,
+            isAuthenticated: !!user,
+            isAdmin: role === 'admin',
+            loading,
+            login,
+            signup,
+            logout,
+            signInWithGoogle,
+            signInWithApple,
+            signInWithFacebook
+        }}>
             {children}
         </AuthContext.Provider>
     );

@@ -6,6 +6,13 @@ create table public.profiles (
   username text unique,
   email text,
   role text default 'user', -- 'user' or 'admin'
+  phone_number text,
+  address_line1 text,
+  address_line2 text,
+  city text,
+  state text,
+  postal_code text,
+  country text,
   
   primary key (id)
 );

@@ -80,12 +80,9 @@ export default function Home() {
           <div className="relative h-96 md:h-auto bg-zinc-900">
             {/* Placeholder for Car Detail Image */}
             <div className="absolute inset-0 bg-[url('/images/homepage_gif.gif')] bg-cover bg-center grayscale"></div>
-            <div className="absolute bottom-10 left-10 p-4 bg-black/80 backdrop-blur-sm">
-              <h3 className="text-white text-4xl font-bold uppercase whitespace-pre-line">{t.home.story_title}</h3>
-            </div>
           </div>
           <div className="bg-[#E9482F] p-12 lg:p-24 flex flex-col justify-center">
-            <h2 className="text-white text-4xl font-bold uppercase mb-8">{t.home.vision_title}</h2> {/* Reusing Vision title for now, or could use Story title if different */}
+            <h2 className="text-white text-4xl font-bold uppercase mb-8">{t.home.story_title}</h2> {/* Reusing Vision title for now, or could use Story title if different */}
             <p className="text-white/90 text-lg leading-relaxed mb-8 font-medium">
               {t.home.story_desc}
             </p>

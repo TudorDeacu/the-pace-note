@@ -13,6 +13,9 @@ const Map = dynamic(
     { ssr: false }
 );
 
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+
 export default function Checkout() {
     const { items, cartTotal } = useCart();
 
@@ -34,6 +37,10 @@ export default function Checkout() {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
+
+    const handlePhoneChange = (value: string | undefined) => {
+        setFormData((prev) => ({ ...prev, phone: value || "" }));
+    }
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -62,6 +69,21 @@ export default function Checkout() {
                                                 value={formData.email}
                                                 onChange={handleInputChange}
                                                 className="block w-full rounded-md border-0 bg-zinc-900 py-2.5 text-white shadow-sm ring-1 ring-inset ring-zinc-700 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="sm:col-span-4">
+                                        <label htmlFor="phone" className="block text-sm font-medium leading-6 text-zinc-300">
+                                            Phone number
+                                        </label>
+                                        <div className="mt-2">
+                                            <PhoneInput
+                                                international
+                                                defaultCountry="RO"
+                                                value={formData.phone}
+                                                onChange={handlePhoneChange}
+                                                className="block w-full rounded-md border-0 bg-zinc-900 py-2.5 text-white shadow-sm ring-1 ring-inset ring-zinc-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-red-600 sm:text-sm sm:leading-6 pl-3"
                                             />
                                         </div>
                                     </div>
@@ -218,9 +240,13 @@ export default function Checkout() {
                                     <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-zinc-700 relative">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
-                                            src={item.image || ""}
+                                            src={item.image || "/images/logo.png"}
                                             alt={item.name}
                                             className="h-full w-full object-cover object-center"
+                                            onError={(e) => {
+                                                e.currentTarget.src = "/images/logo.png";
+                                                e.currentTarget.onerror = null; // Prevent infinite loop
+                                            }}
                                         />
                                     </div>
                                     <div className="ml-4 flex flex-1 flex-col">

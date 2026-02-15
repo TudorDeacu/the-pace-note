@@ -29,3 +29,26 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Custom styles for react-phone-number-input in dark mode */
+.PhoneInputInput {
+  background-color: transparent;
+  color: white;
+  border: none;
+  outline: none;
+  padding-left: 10px;
+}
+
+.PhoneInputCountry {
+  margin-right: 0.5rem;
+}
+
+.PhoneInputCountrySelect {
+  background-color: #18181b;
+  /* zinc-900 */
+  color: white;
+}
+
+.PhoneInputCountryIcon {
+  margin-left: 10px;
+}
