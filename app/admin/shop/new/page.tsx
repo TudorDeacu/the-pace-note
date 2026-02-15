@@ -60,6 +60,40 @@ export default function NewProduct() {
         }
     };
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+
+        const file = e.target.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        setLoading(true);
+        const { error: uploadError } = await supabase.storage
+            .from('products')
+            .upload(filePath, file);
+
+        if (uploadError) {
+            alert('Error uploading image: ' + uploadError.message);
+            setLoading(false);
+            return;
+        }
+
+        const { data } = supabase.storage.from('products').getPublicUrl(filePath);
+
+        // Add the new URL to images
+        const newImages = [...images];
+        // Find first empty slot or append
+        const emptyIndex = newImages.indexOf("");
+        if (emptyIndex !== -1) {
+            newImages[emptyIndex] = data.publicUrl;
+        } else {
+            newImages.push(data.publicUrl);
+        }
+        setImages(newImages);
+        setLoading(false);
+    };
+
     return (
         <div className="pb-20">
             <h1 className="text-3xl font-bold uppercase tracking-tighter text-white mb-8">Add New Product</h1>
@@ -158,6 +192,22 @@ export default function NewProduct() {
                         >
                             <PlusIcon className="w-4 h-4" /> Add Another Image
                         </button>
+                    </div>
+                    <div className="mt-4 border-t border-zinc-800 pt-4">
+                        <label className="block text-sm font-semibold leading-6 text-zinc-400 uppercase tracking-widest mb-2">Or Upload Image</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            className="block w-full text-sm text-zinc-400
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-md file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-zinc-800 file:text-white
+                              hover:file:bg-zinc-700
+                            "
+                        />
+                        <p className="mt-1 text-xs text-zinc-500">Uploads to &apos;products&apos; bucket.</p>
                     </div>
                 </div>
 

@@ -2,17 +2,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import logo from "../app/images/logo.png";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+import CartDrawer from "./CartDrawer";
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { language, setLanguage, t } = useLanguage();
     const { isAuthenticated, isAdmin } = useAuth();
+    const pathname = usePathname();
+    const { cartCount, setCartOpen } = useCart();
 
     // Filter out "Account" from main nav if not authenticated, or keep it and let it redirect to login?
     // Usually "Account" in nav is fine, page handles redirect. But we can make it dynamic.
@@ -64,7 +69,10 @@ export default function Navbar() {
                         <Link
                             key={item.name}
                             href={item.href}
-                            className="text-sm font-semibold leading-6 text-zinc-300 hover:text-white hover:text-red-500 transition-colors uppercase tracking-widest"
+                            className={`text-sm font-semibold leading-6 transition-colors uppercase tracking-widest ${pathname === item.href
+                                ? "text-orange-500"
+                                : "text-zinc-300 hover:text-white hover:text-red-500"
+                                }`}
                         >
                             {item.name}
                         </Link>
@@ -76,7 +84,10 @@ export default function Navbar() {
                             {isAdmin && (
                                 <Link
                                     href="/admin"
-                                    className="text-sm font-bold leading-6 text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest"
+                                    className={`text-sm font-bold leading-6 transition-colors uppercase tracking-widest ${pathname === "/admin"
+                                        ? "text-orange-500"
+                                        : "text-red-500 hover:text-red-400"
+                                        }`}
                                 >
                                     Admin
                                 </Link>
@@ -85,7 +96,10 @@ export default function Navbar() {
                     ) : (
                         <Link
                             href="/login"
-                            className="text-sm font-semibold leading-6 text-zinc-300 hover:text-white hover:text-red-500 transition-colors uppercase tracking-widest"
+                            className={`text-sm font-semibold leading-6 transition-colors uppercase tracking-widest ${pathname === "/login"
+                                ? "text-orange-500"
+                                : "text-zinc-300 hover:text-white hover:text-red-500"
+                                }`}
                         >
                             Login
                         </Link>
@@ -95,6 +109,18 @@ export default function Navbar() {
                         className="text-sm font-semibold leading-6 text-zinc-300 hover:text-red-500 transition-colors uppercase tracking-widest ml-4"
                     >
                         {language}
+                    </button>
+
+                    <button
+                        onClick={() => setCartOpen(true)}
+                        className="text-sm font-semibold leading-6 text-zinc-300 hover:text-red-500 transition-colors ml-4 relative"
+                    >
+                        <ShoppingBagIcon className="h-6 w-6" />
+                        {cartCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                {cartCount}
+                            </span>
+                        )}
                     </button>
                 </div>
             </nav>
@@ -132,7 +158,10 @@ export default function Navbar() {
                                     <Link
                                         key={item.name}
                                         href={item.href}
-                                        className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-zinc-100 hover:bg-zinc-900 hover:text-red-500 uppercase tracking-widest"
+                                        className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 transition-colors uppercase tracking-widest hover:bg-zinc-900 ${pathname === item.href
+                                            ? "text-orange-500"
+                                            : "text-zinc-100 hover:text-red-500"
+                                            }`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         {item.name}
@@ -152,6 +181,7 @@ export default function Navbar() {
                     </div>
                 </DialogPanel>
             </Dialog>
+            <CartDrawer />
         </header>
     );
 }

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { TrashIcon, ArrowUpIcon, ArrowDownIcon, PhotoIcon, Bars3BottomLeftIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, ArrowUpIcon, ArrowDownIcon, PhotoIcon, Bars3BottomLeftIcon, ArrowsRightLeftIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 type BlockType = "paragraph" | "heading" | "image" | "image-text";
 
@@ -45,10 +46,13 @@ export default function EditArticle() {
                 }
             } else {
                 console.error("Error loading article:", error);
+                alert("Article not found");
+                router.push("/admin/blog");
             }
             setLoading(false);
         }
         fetchArticle();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params?.id]);
 
     const addBlock = (type: BlockType) => {
@@ -90,7 +94,7 @@ export default function EditArticle() {
                 title,
                 content: { blocks, excerpt },
             })
-            .eq('id', params.id);
+            .eq('id', params?.id);
 
         if (error) {
             console.error(error);
@@ -101,19 +105,50 @@ export default function EditArticle() {
         }
     };
 
+    const handleDelete = async () => {
+        if (!confirm("Are you sure you want to delete this article? This action cannot be undone.")) return;
+
+        setSaving(true);
+        const { error } = await supabase
+            .from('articles')
+            .delete()
+            .eq('id', params?.id);
+
+        if (error) {
+            alert("Error deleting article: " + error.message);
+            setSaving(false);
+        } else {
+            router.push("/admin/blog");
+        }
+    };
+
     if (loading) return <div className="text-white">Loading...</div>;
 
     return (
         <div className="max-w-4xl mx-auto pb-20">
+            <Link href="/admin/blog" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
+                <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Blog
+            </Link>
+
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit Article</h1>
-                <button
-                    onClick={handleSubmit}
-                    disabled={saving}
-                    className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
-                >
-                    {saving ? "Saving..." : "Update"}
-                </button>
+                <div className="flex gap-4">
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        disabled={saving}
+                        className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
+                    >
+                        <TrashIcon className="w-5 h-5" /> Delete
+                    </button>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={saving}
+                        className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
+                    >
+                        {saving ? "Saving..." : "Update"}
+                    </button>
+                </div>
             </div>
 
             <div className="space-y-6">

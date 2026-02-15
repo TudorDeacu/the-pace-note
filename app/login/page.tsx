@@ -33,8 +33,8 @@ export default function Login() {
     return (
         <div className="min-h-screen bg-black flex flex-col">
             <Navbar />
-            <main className="flex-1 flex items-center justify-center p-6">
-                <div className="w-full max-w-md bg-zinc-900/50 p-8 rounded-lg border border-zinc-800">
+            <main className="flex-1 flex items-center justify-center p-6 py-20">
+                <div className="w-full max-w-md bg-zinc-900/50 p-8 rounded-lg border border-zinc-800 mt-20">
                     <h1 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest text-center">Login</h1>
 
                     {error && (

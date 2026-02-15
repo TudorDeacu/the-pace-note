@@ -61,13 +61,22 @@ export default function Account() {
                     <div className="bg-zinc-900/50 rounded-lg p-6 border border-zinc-800 max-w-2xl">
                         <dl className="divide-y divide-zinc-800">
                             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-zinc-400">First Name</dt>
+                                <dd className="mt-1 text-sm leading-6 text-white sm:col-span-2 sm:mt-0">{user?.user_metadata?.first_name || 'N/A'}</dd>
+                            </div>
+                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-zinc-400">Last Name</dt>
+                                <dd className="mt-1 text-sm leading-6 text-white sm:col-span-2 sm:mt-0">{user?.user_metadata?.last_name || 'N/A'}</dd>
+                            </div>
+                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                <dt className="text-sm font-medium leading-6 text-zinc-400">Username</dt>
+                                <dd className="mt-1 text-sm leading-6 text-white sm:col-span-2 sm:mt-0">{user?.user_metadata?.username || 'N/A'}</dd>
+                            </div>
+                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                 <dt className="text-sm font-medium leading-6 text-zinc-400">Email address</dt>
                                 <dd className="mt-1 text-sm leading-6 text-white sm:col-span-2 sm:mt-0">{user?.email}</dd>
                             </div>
-                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                <dt className="text-sm font-medium leading-6 text-zinc-400">User ID</dt>
-                                <dd className="mt-1 text-sm leading-6 text-zinc-500 sm:col-span-2 sm:mt-0 font-mono text-xs">{user?.id}</dd>
-                            </div>
+
                         </dl>
                     </div>
                 </div>

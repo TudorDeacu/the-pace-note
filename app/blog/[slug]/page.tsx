@@ -17,6 +17,29 @@ interface Block {
     imageSide?: "left" | "right";
 }
 
+import blogTrackDay from "../../images/blog_track_day.png";
+import blogSimRacing from "../../images/blog_sim_racing.png";
+import blogMaintenance from "../../images/blog_maintenance.png";
+
+const DEMO_CONTENT: Record<string, Block[]> = {
+    "mastering-the-track": [
+        { id: "1", type: "heading", content: "The Perfect Racing Line" },
+        { id: "2", type: "paragraph", content: "Understanding the geometric racing line is crucial for fast lap times. It's about maximizing the radius of the turn to maintain the highest possible average speed." },
+        { id: "3", type: "image", content: "", imageUrl: blogTrackDay.src, caption: "Sunset session at the Nürburgring." },
+        { id: "4", type: "paragraph", content: "Always look ahead. Your hands follow your eyes. If you look at the barrier, you will hit the barrier. Look at the apex, then immediately look for the exit." }
+    ],
+    "ultimate-sim-racing-setup": [
+        { id: "1", type: "heading", content: "Choosing the Right Wheel Base" },
+        { id: "2", type: "paragraph", content: "Direct Drive is the gold standard. It provides 1:1 force feedback without belts or gears dampening the detail." },
+        { id: "3", type: "image-text", content: "A solid rig is just as important as the wheel. If your seat flexes under braking, you lose consistency.", imageUrl: blogSimRacing.src, caption: "Triple monitor setup with ambient lighting." },
+    ],
+    "essential-maintenance-tips": [
+        { id: "1", type: "heading", content: "Fluids are Life" },
+        { id: "2", type: "paragraph", content: "Oil, brake fluid, coolant. Check them regularly. High performance driving degrades fluids much faster than daily commuting." },
+        { id: "3", type: "image", content: "", imageUrl: blogMaintenance.src, caption: "Regular checks prevent catastrophic failures." },
+    ]
+};
+
 interface Article {
     id: string;
     title: string;
@@ -35,6 +58,22 @@ export default function ArticlePage() {
     useEffect(() => {
         async function fetchArticle() {
             if (!params?.slug) return;
+
+            // Check for demo article first
+            const demoSlug = typeof params.slug === 'string' ? params.slug : params.slug[0];
+            if (DEMO_CONTENT[demoSlug]) {
+                const demoTitle = demoSlug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                setArticle({
+                    id: "demo",
+                    title: demoTitle,
+                    slug: demoSlug,
+                    content: { blocks: DEMO_CONTENT[demoSlug] },
+                    published: true,
+                    created_at: new Date().toISOString()
+                });
+                setLoading(false);
+                return;
+            }
 
             const { data, error } = await supabase
                 .from('articles')
