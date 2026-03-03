@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import T from "@/components/T";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -49,19 +50,19 @@ export default function Login() {
     return (
         <div className="min-h-screen bg-black flex flex-col">
             <Navbar />
-            <main className="flex-1 flex items-center justify-center p-6 py-20">
-                <div className="w-full max-w-md bg-zinc-900/50 p-8 rounded-lg border border-zinc-800 mt-20">
-                    <h1 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest text-center">Login</h1>
+            <main className="flex-1 flex flex-col items-center justify-center p-6 pt-24 pb-12">
+                <div className="w-full max-w-md bg-zinc-900/50 p-8 rounded-lg border border-zinc-800">
+                    <h1 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest text-center"><T>Logare</T></h1>
 
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded mb-4 text-sm">
-                            {error}
+                            <T>{error}</T>
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-1">Email</label>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Email</T></label>
                             <input
                                 type="email"
                                 value={email}
@@ -71,7 +72,7 @@ export default function Login() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-1">Password</label>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Parolă</T></label>
                             <input
                                 type="password"
                                 value={password}
@@ -91,7 +92,7 @@ export default function Login() {
                                 className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-red-600 focus:ring-red-600"
                             />
                             <label htmlFor="remember-me" className="ml-2 block text-sm text-zinc-400">
-                                Keep me logged in
+                                <T>Păstrează-mă logat</T>
                             </label>
                         </div>
 
@@ -100,14 +101,14 @@ export default function Login() {
                             disabled={loading}
                             className="w-full bg-red-600 text-white font-bold uppercase tracking-widest py-3 rounded hover:bg-red-500 transition-colors disabled:opacity-50 mt-2"
                         >
-                            {loading ? "Signing In..." : "Sign In"}
+                            {loading ? <T>Se autentifică...</T> : <T>Autentificare</T>}
                         </button>
                     </form>
 
                     {/* Separator */}
                     <div className="flex flex-row md:flex-col items-center justify-center">
                         <div className="flex-grow border-t md:border-t-0 md:border-l border-zinc-800 h-0 md:h-full w-full md:w-0"></div>
-                        <span className="flex-shrink-0 mx-4 md:mx-0 md:my-4 text-zinc-500 text-sm">OR</span>
+                        <span className="flex-shrink-0 mx-4 md:mx-0 md:my-4 text-zinc-500 text-sm"><T>sau</T></span>
                         <div className="flex-grow border-t md:border-t-0 md:border-l border-zinc-800 h-0 md:h-full w-full md:w-0"></div>
                     </div>
 
@@ -155,9 +156,9 @@ export default function Login() {
                     </div>
 
                     <p className="mt-6 text-center text-zinc-500 text-sm">
-                        Don't have an account?{" "}
+                        <T>Nu ai cont?</T>{" "}
                         <Link href="/register" className="text-white hover:text-red-500 transition-colors font-semibold">
-                            Register
+                            <T>Înregistrează-te</T>
                         </Link>
                     </p>
                 </div>

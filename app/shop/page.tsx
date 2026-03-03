@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useLanguage } from "@/context/LanguageContext";
+import T from "@/components/T";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -51,7 +51,6 @@ const DEMO_PRODUCTS: Product[] = [
 ];
 
 export default function Shop() {
-    const { t } = useLanguage();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
@@ -93,16 +92,16 @@ export default function Shop() {
             <main className="pt-24 px-6 lg:px-8 max-w-7xl mx-auto">
                 <div className="py-24 sm:py-32">
                     <div className="mx-auto max-w-2xl lg:mx-0">
-                        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase">{t.shop.title}</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase"><T>Magazin</T></h2>
                         <p className="mt-2 text-lg leading-8 text-zinc-400">
-                            {t.shop.description}
+                            <T>Echipament oficial The Pace Note.</T>
                         </p>
                     </div>
                     <div className="mt-10 border-t border-zinc-800 pt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
                         {loading ? (
-                            <p className="text-zinc-500">Loading products...</p>
+                            <p className="text-zinc-500"><T>Se încarcă...</T></p>
                         ) : products.length === 0 ? (
-                            <p className="text-zinc-500 italic">{t.shop.empty}</p>
+                            <p className="text-zinc-500 italic"><T>Nu există produse momentan.</T></p>
                         ) : (
                             products.map((product) => (
                                 <a key={product.id} href={`/shop/${product.id}`} className="group"> {/* Link to single product page */}
@@ -115,7 +114,7 @@ export default function Shop() {
                                                 className="h-full w-full object-cover object-center group-hover:opacity-75"
                                             />
                                         ) : (
-                                            <div className="h-full w-full flex items-center justify-center text-zinc-600">No Image</div>
+                                            <div className="h-full w-full flex items-center justify-center text-zinc-600"><T>Fără imagine</T></div>
                                         )}
                                     </div>
                                     <h3 className="mt-4 text-sm text-zinc-300 uppercase tracking-wide font-bold">{product.name}</h3>

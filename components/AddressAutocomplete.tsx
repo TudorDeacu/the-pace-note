@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslationContext } from "@/context/TranslationContext";
 
 interface AddressData {
     address_line1: string;
@@ -8,6 +9,8 @@ interface AddressData {
     state: string;
     postal_code: string;
     country: string;
+    street?: string;
+    house_number?: string;
 }
 
 interface NominatimResult {
@@ -58,6 +61,8 @@ interface AddressAutocompleteProps {
     id?: string;
     className?: string; // Allow passing className to match existing styles
     placeholder?: string;
+    searchType?: 'text' | 'state' | 'city';
+    onInputChange?: (value: string) => void;
 }
 
 export default function AddressAutocomplete({
@@ -68,17 +73,23 @@ export default function AddressAutocomplete({
     name,
     id,
     className,
-    placeholder
+    placeholder,
+    searchType = 'text',
+    onInputChange
 }: AddressAutocompleteProps) {
     const [query, setQuery] = useState(defaultValue);
     const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const { t } = useTranslationContext();
 
-    // Update query when defaultValue changes (e.g. from parent state)
+    // Only update query from defaultValue on mount or if defaultValue changes significantly (e.g. from DB)
+    // We want to avoid overwriting user typing if the parent updates due to onInputChange
     useEffect(() => {
-        setQuery(defaultValue);
+        if (defaultValue && defaultValue !== query) {
+            setQuery(defaultValue);
+        }
     }, [defaultValue]);
 
     // Close dropdown when clicking outside
@@ -94,7 +105,16 @@ export default function AddressAutocomplete({
         };
     }, [wrapperRef]);
 
-    const handleSearch = async (searchTerm: string) => {
+    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    const performSearch = useCallback(async (searchTerm: string) => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         if (searchTerm.length < 3) {
             setSuggestions([]);
             return;
@@ -103,11 +123,20 @@ export default function AddressAutocomplete({
         setLoading(true);
         try {
             // Using OpenStreetMap Nominatim API
-            // format=jsonv2 provides extra details
-            // addressdetails=1 gives us the breakdown (road, city, etc.)
+            let url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5`;
+
+            if (searchType === 'state') {
+                url += `&state=${encodeURIComponent(searchTerm)}`;
+            } else if (searchType === 'city') {
+                url += `&city=${encodeURIComponent(searchTerm)}`;
+            } else {
+                url += `&q=${encodeURIComponent(searchTerm)}`;
+            }
+
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTerm)}&format=jsonv2&addressdetails=1&limit=5`,
+                url,
                 {
+                    signal: controller.signal,
                     headers: {
                         'Accept-Language': 'en-US,en;q=0.9' // Prefer English results
                     }
@@ -116,23 +145,23 @@ export default function AddressAutocomplete({
             const data = await response.json();
             setSuggestions(data);
             setIsOpen(true);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'AbortError') return;
             console.error("Error fetching address suggestions:", error);
         } finally {
-            setLoading(false);
-        }
-    };
-
-    // Debounce search
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (query && query !== defaultValue) { // Only search if query changed by user typing
-                handleSearch(query);
+            if (!controller.signal.aborted) {
+                setLoading(false);
             }
-        }, 500);
+        }
+    }, [searchType]);
 
-        return () => clearTimeout(timer);
-    }, [query, defaultValue]);
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+            if (abortControllerRef.current) abortControllerRef.current.abort();
+        };
+    }, []);
 
     const handleSelect = (item: NominatimResult) => {
         const addr = item.address;
@@ -150,8 +179,15 @@ export default function AddressAutocomplete({
             city: city,
             state: state,
             postal_code: addr.postcode || '',
-            country: addr.country || ''
+            country: addr.country || '',
+            street: road,
+            house_number: houseNumber
         };
+
+        // Clear any pending search
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        if (abortControllerRef.current) abortControllerRef.current.abort();
+        setLoading(false);
 
         setQuery(addressLine1); // Show the street address in the input
         setSuggestions([]);
@@ -162,7 +198,7 @@ export default function AddressAutocomplete({
     return (
         <div className="relative" ref={wrapperRef}>
             <label htmlFor={id} className="block text-sm font-medium leading-6 text-zinc-400">
-                {label} {required && <span className="text-red-500">*</span>}
+                {t(label || "Caută adresă")} {required && <span className="text-red-500">*</span>}
             </label>
             <div className="mt-2 relative">
                 <input
@@ -172,19 +208,26 @@ export default function AddressAutocomplete({
                     required={required}
                     value={query}
                     onChange={(e) => {
-                        setQuery(e.target.value);
-                        // Also call onSelect with partial data if needed, 
-                        // but usually we wait for selection.
-                        // For now just update local state, act as normal input if they don't select.
+                        const val = e.target.value;
+                        setQuery(val);
+                        if (onInputChange) {
+                            onInputChange(val);
+                        }
+
+                        // Debounce search
+                        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+                        searchTimeoutRef.current = setTimeout(() => {
+                            performSearch(val);
+                        }, 500);
                     }}
-                    placeholder={placeholder}
+                    placeholder={t(placeholder || "Caută adresa...")}
                     className={className || "block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-red-500 sm:text-sm sm:leading-6 pl-3"}
                     autoComplete="off" // Disable browser autocomplete to show ours
                 />
 
                 {loading && (
                     <div className="absolute right-3 top-2 text-zinc-500 text-xs">
-                        Loading...
+                        {t("Se caută...")}
                     </div>
                 )}
 

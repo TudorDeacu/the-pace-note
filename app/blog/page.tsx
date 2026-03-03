@@ -2,8 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useLanguage } from "@/context/LanguageContext";
-
+import T from "@/components/T";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
@@ -56,7 +55,6 @@ const DEMO_ARTICLES: Article[] = [
 ];
 
 export default function Blog() {
-    const { t } = useLanguage();
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
@@ -97,16 +95,16 @@ export default function Blog() {
             <main className="pt-24 px-6 lg:px-8 max-w-7xl mx-auto">
                 <div className="py-24 sm:py-32">
                     <div className="mx-auto max-w-2xl lg:mx-0">
-                        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase">{t.blog.title}</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase"><T>Blog</T></h2>
                         <p className="mt-2 text-lg leading-8 text-zinc-400">
-                            {t.blog.description}
+                            <T>Povești din motorsportul românesc.</T>
                         </p>
                     </div>
                     <div className="mt-10 border-t border-zinc-800 pt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {loading ? (
-                            <p className="text-zinc-500">Loading articles...</p>
+                            <p className="text-zinc-500"><T>Se încarcă...</T></p>
                         ) : articles.length === 0 ? (
-                            <p className="text-zinc-500 italic">{t.blog.empty}</p>
+                            <p className="text-zinc-500 italic"><T>Articolele vor apărea aici în curând.</T></p>
                         ) : (
                             articles.map((article) => (
                                 <article key={article.id} className="flex flex-col items-start justify-between bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-900 transition-colors group overflow-hidden">
@@ -119,7 +117,7 @@ export default function Blog() {
                                                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                                             />
                                         ) : (
-                                            <div className="h-full w-full bg-zinc-800 flex items-center justify-center text-zinc-600">No Image</div>
+                                            <div className="h-full w-full bg-zinc-800 flex items-center justify-center text-zinc-600"><T>Fără imagine</T></div>
                                         )}
                                     </div>
                                     <div className="p-6 flex flex-col flex-1 w-full">
@@ -136,7 +134,7 @@ export default function Blog() {
                                                 </Link>
                                             </h3>
                                             <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-400">
-                                                {article.excerpt || "Click to read more..."}
+                                                {article.excerpt || <T>Citește Mai Mult</T>}
                                             </p>
                                         </div>
                                     </div>

@@ -6,8 +6,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import T from "@/components/T";
+import { useTranslationContext } from "@/context/TranslationContext";
 
 export default function Register() {
+    const { t } = useTranslationContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,7 +28,7 @@ export default function Register() {
         setError("");
 
         if (password !== confirmPassword) {
-            setError("Passwords do not match");
+            setError(t("Parolele nu corespund"));
             return;
         }
 
@@ -37,7 +40,7 @@ export default function Register() {
             setError(result.error);
             setLoading(false);
         } else {
-            alert("Registration successful! Please check your email to confirm your account.");
+            alert(t("Înregistrare cu succes! Te rugăm să îți verifici emailul pentru a confirma contul."));
             router.push("/login");
         }
     };
@@ -59,13 +62,13 @@ export default function Register() {
     return (
         <div className="min-h-screen bg-black flex flex-col">
             <Navbar />
-            <main className="flex-1 flex items-center justify-center p-6 py-20">
-                <div className="w-full max-w-5xl bg-zinc-900/50 p-8 rounded-lg border border-zinc-800 mt-20">
-                    <h1 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest text-center">Create Account</h1>
+            <main className="flex-1 flex flex-col items-center justify-center p-6 pt-24 pb-12">
+                <div className="w-full max-w-5xl bg-zinc-900/50 p-8 rounded-lg border border-zinc-800">
+                    <h1 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest text-center"><T>Înregistrare</T></h1>
 
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded mb-4 text-sm text-center">
-                            {error}
+                            <T>{error}</T>
                         </div>
                     )}
 
@@ -75,7 +78,7 @@ export default function Register() {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-zinc-400 mb-1">First Name</label>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Nume</T></label>
                                         <input
                                             type="text"
                                             value={firstName}
@@ -85,7 +88,7 @@ export default function Register() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-zinc-400 mb-1">Last Name</label>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Prenume</T></label>
                                         <input
                                             type="text"
                                             value={lastName}
@@ -97,7 +100,7 @@ export default function Register() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-1">Username</label>
+                                    <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Nume utilizator</T></label>
                                     <input
                                         type="text"
                                         value={username}
@@ -108,7 +111,7 @@ export default function Register() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-1">Email</label>
+                                    <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Email</T></label>
                                     <input
                                         type="email"
                                         value={email}
@@ -118,7 +121,7 @@ export default function Register() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-1">Password</label>
+                                    <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Parolă</T></label>
                                     <input
                                         type="password"
                                         value={password}
@@ -129,7 +132,7 @@ export default function Register() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-1">Confirm Password</label>
+                                    <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Confirmă Parola</T></label>
                                     <input
                                         type="password"
                                         value={confirmPassword}
@@ -144,7 +147,7 @@ export default function Register() {
                                     disabled={loading}
                                     className="w-full bg-red-600 text-white font-bold uppercase tracking-widest py-3 rounded hover:bg-red-500 transition-colors disabled:opacity-50 mt-2"
                                 >
-                                    {loading ? "Creating Account..." : "Register"}
+                                    {loading ? <T>Se înregistrează...</T> : <T>Înregistrare</T>}
                                 </button>
                             </form>
                         </div>
@@ -152,7 +155,7 @@ export default function Register() {
                         {/* Separator */}
                         <div className="flex flex-row md:flex-col items-center justify-center">
                             <div className="flex-grow border-t md:border-t-0 md:border-l border-zinc-800 h-0 md:h-full w-full md:w-0"></div>
-                            <span className="flex-shrink-0 mx-4 md:mx-0 md:my-4 text-zinc-500 text-sm">OR</span>
+                            <span className="flex-shrink-0 mx-4 md:mx-0 md:my-4 text-zinc-500 text-sm"><T>sau</T></span>
                             <div className="flex-grow border-t md:border-t-0 md:border-l border-zinc-800 h-0 md:h-full w-full md:w-0"></div>
                         </div>
 
@@ -201,9 +204,9 @@ export default function Register() {
                     </div>
 
                     <p className="mt-8 text-center text-zinc-500 text-sm">
-                        Already have an account?{" "}
+                        Ai deja un cont?{" "}
                         <Link href="/login" className="text-white hover:text-red-500 transition-colors font-semibold">
-                            Login
+                            Loghează-te
                         </Link>
                     </p>
                 </div>

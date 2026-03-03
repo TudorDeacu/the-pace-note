@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   description: "Motorsportul românesc și cultura auto din România.",
 };
 
-import { LanguageProvider } from "../context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { TranslationProvider } from "@/context/TranslationContext";
 
 export default function RootLayout({
   children,
@@ -31,13 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white selection:bg-red-600 selection:text-white`}
       >
-        <LanguageProvider>
+        <TranslationProvider>
           <AuthProvider>
             <CartProvider>
               {children}
             </CartProvider>
           </AuthProvider>
-        </LanguageProvider>
+        </TranslationProvider>
       </body>
     </html>
   );

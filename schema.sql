@@ -116,20 +116,23 @@ create policy "Admins can delete products."
     exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
   );
 
--- Storage Buckets (Optional but recommended for images)
--- You may need to create a 'images' bucket in Supabase Storage manually or via SQL if enabled
+-- Storage Buckets
 insert into storage.buckets (id, name, public)
-values ('images', 'images', true)
+values 
+  ('blogs', 'blogs', true),
+  ('products', 'products', true),
+  ('projects', 'projects', true),
+  ('other', 'other', true)
 on conflict (id) do nothing;
 
-create policy "Public Access"
-  on storage.objects for select
-  using ( bucket_id = 'images' );
+create policy "Public Access Blogs" on storage.objects for select using ( bucket_id = 'blogs' );
+create policy "Public Access Products" on storage.objects for select using ( bucket_id = 'products' );
+create policy "Public Access Projects" on storage.objects for select using ( bucket_id = 'projects' );
+create policy "Public Access Other" on storage.objects for select using ( bucket_id = 'other' );
 
 create policy "Authenticated Upload"
   on storage.objects for insert
   with check ( 
-    bucket_id = 'images' 
+    bucket_id in ('blogs', 'products', 'projects', 'other')
     and auth.role() = 'authenticated'
-    -- Ideally check for admin role here too, but simple auth check is often sufficient for storage upload if RLS on tables is strict
   );

@@ -7,14 +7,14 @@ import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import logo from "../app/images/logo.png";
-import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import CartDrawer from "./CartDrawer";
+import LanguageToggle from "./LanguageToggle";
+import T from "./T";
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { language, setLanguage, t } = useLanguage();
     const { isAuthenticated, isAdmin } = useAuth();
     const pathname = usePathname();
     const { cartCount, setCartOpen } = useCart();
@@ -26,14 +26,14 @@ export default function Navbar() {
     // I'll filter out "Account" from the `navigation` array if not logged in, but let's just modify the array.
 
     const navigation = [
-        { name: t.nav.home, href: "/" },
-        { name: t.nav.blog, href: "/blog" },
-        { name: t.nav.garage, href: "/garage" },
-        { name: t.nav.shop, href: "/shop" },
+        { name: "Acasă", href: "/" },
+        { name: "Blog", href: "/blog" },
+        { name: "Garaj", href: "/garage" },
+        { name: "Magazin", href: "/shop" },
     ];
 
     if (isAuthenticated) {
-        navigation.push({ name: t.nav.account, href: "/account" });
+        navigation.push({ name: "Cont", href: "/account" });
     }
 
     return (
@@ -74,7 +74,7 @@ export default function Navbar() {
                                 : "text-zinc-300 hover:text-white hover:text-red-500"
                                 }`}
                         >
-                            {item.name}
+                            <T>{item.name}</T>
                         </Link>
                     ))}
 
@@ -89,7 +89,7 @@ export default function Navbar() {
                                         : "text-red-500 hover:text-red-400"
                                         }`}
                                 >
-                                    Admin
+                                    <T>Admin</T>
                                 </Link>
                             )}
                         </>
@@ -101,16 +101,10 @@ export default function Navbar() {
                                 : "text-zinc-300 hover:text-white hover:text-red-500"
                                 }`}
                         >
-                            Login
+                            <T>Logare</T>
                         </Link>
                     )}
-                    <button
-                        onClick={() => setLanguage(language === "RO" ? "EN" : "RO")}
-                        className="text-sm font-semibold leading-6 text-zinc-300 hover:text-red-500 transition-colors uppercase tracking-widest ml-4"
-                    >
-                        {language}
-                    </button>
-
+                    <LanguageToggle />
                     <button
                         onClick={() => setCartOpen(true)}
                         className="text-sm font-semibold leading-6 text-zinc-300 hover:text-red-500 transition-colors ml-4 relative"
@@ -147,7 +141,7 @@ export default function Navbar() {
                             className="-m-2.5 rounded-md p-2.5 text-zinc-400 hover:text-white"
                             onClick={() => setMobileMenuOpen(false)}
                         >
-                            <span className="sr-only">Close menu</span>
+                            <span className="sr-only"><T>Închide meniul</T></span>
                             <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                         </button>
                     </div>
@@ -164,18 +158,41 @@ export default function Navbar() {
                                             }`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
-                                        {item.name}
+                                        <T>{item.name}</T>
                                     </Link>
                                 ))}
-                                <button
-                                    onClick={() => {
-                                        setLanguage(language === "RO" ? "EN" : "RO");
-                                        setMobileMenuOpen(false);
-                                    }}
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-zinc-100 hover:bg-zinc-900 hover:text-red-500 uppercase tracking-widest text-left w-full"
-                                >
-                                    Language: {language}
-                                </button>
+
+                                {/* Mobile Auth Links */}
+                                {isAuthenticated ? (
+                                    <>
+                                        {isAdmin && (
+                                            <Link
+                                                href="/admin"
+                                                className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 transition-colors uppercase tracking-widest hover:bg-zinc-900 ${pathname === "/admin"
+                                                    ? "text-orange-500"
+                                                    : "text-red-500 hover:text-red-400"
+                                                    }`}
+                                                onClick={() => setMobileMenuOpen(false)}
+                                            >
+                                                <T>Admin</T>
+                                            </Link>
+                                        )}
+                                    </>
+                                ) : (
+                                    <Link
+                                        href="/login"
+                                        className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 transition-colors uppercase tracking-widest hover:bg-zinc-900 ${pathname === "/login"
+                                            ? "text-orange-500"
+                                            : "text-zinc-100 hover:text-red-500"
+                                            }`}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        <T>Logare</T>
+                                    </Link>
+                                )}
+                                <div className="-mx-3 block rounded-lg px-3 py-2">
+                                    <LanguageToggle />
+                                </div>
                             </div>
                         </div>
                     </div>

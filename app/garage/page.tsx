@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useLanguage } from "@/context/LanguageContext";
+import T from "@/components/T";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
@@ -19,7 +19,6 @@ interface Project {
 }
 
 export default function Garage() {
-    const { t } = useLanguage();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
@@ -46,18 +45,18 @@ export default function Garage() {
             <main className="pt-24 px-6 lg:px-8 max-w-7xl mx-auto">
                 <div className="py-24 sm:py-32">
                     <div className="mx-auto max-w-2xl lg:mx-0">
-                        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase">{t.garage.title}</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase"><T>Garaj</T></h2>
                         <p className="mt-2 text-lg leading-8 text-zinc-400">
-                            {t.garage.description}
+                            <T>Proiectele noastre și mașinile care ne inspiră.</T>
                         </p>
                     </div>
 
                     <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-zinc-800 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                         {loading ? (
-                            <div className="col-span-full text-center text-zinc-500 italic py-12">Loading projects...</div>
+                            <div className="col-span-full text-center text-zinc-500 italic py-12"><T>Se încarcă...</T></div>
                         ) : !projects || projects.length === 0 ? (
                             <div className="col-span-full text-center text-zinc-500 italic py-12">
-                                {t.garage.wip || "No projects in the garage yet. Check back soon!"}
+                                <T>În lucru.</T>
                             </div>
                         ) : (
                             projects.map((project) => (
@@ -73,7 +72,7 @@ export default function Garage() {
                                             />
                                         ) : (
                                             <div className="aspect-[16/9] w-full rounded-2xl bg-zinc-900 border border-zinc-800 sm:aspect-[2/1] lg:aspect-[3/2] flex items-center justify-center text-zinc-700">
-                                                No Image
+                                                <T>Fără imagine</T>
                                             </div>
                                         )}
                                     </div>
@@ -90,12 +89,12 @@ export default function Garage() {
                                             </Link>
                                         </h3>
                                         <p className="mt-5 line-clamp-3 text-sm leading-6 text-zinc-400">
-                                            {project.content?.excerpt || project.content?.blocks?.find((b: any) => b.type === 'paragraph')?.content || "No description available."}
+                                            {project.content?.excerpt || project.content?.blocks?.find((b: any) => b.type === 'paragraph')?.content || "Fără descriere"}
                                         </p>
                                     </div>
                                     <div className="relative mt-auto pt-8 flex items-center gap-x-4">
                                         <Link href={`/garage/${project.slug}`} className="text-sm font-semibold leading-6 text-red-600 hover:text-red-500 flex items-center gap-2 uppercase tracking-widest">
-                                            Read More <ArrowRightIcon className="w-4 h-4" />
+                                            <T>Citește Mai Mult</T> <ArrowRightIcon className="w-4 h-4" />
                                         </Link>
                                     </div>
                                 </article>

@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, isAdmin } = useAuth();
+    const { isAuthenticated, isAdmin, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
@@ -50,47 +50,65 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
         <div className="min-h-screen bg-zinc-950 flex text-white">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-zinc-800 bg-black min-h-screen flex-shrink-0">
-                <div className="p-6">
-                    <h1 className="text-xl font-bold uppercase tracking-tighter">TPN Admin</h1>
+            <aside className="w-64 border-r border-zinc-800 bg-black min-h-screen flex-shrink-0 flex flex-col">
+                <div>
+                    <div className="p-6">
+                        <h1 className="text-xl font-bold uppercase tracking-tighter">TPN Admin</h1>
+                    </div>
+                    <nav className="px-4 space-y-2">
+                        <Link
+                            href="/admin"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname === "/admin" ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            href="/admin/blog"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/blog") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            Blog
+                        </Link>
+                        <Link
+                            href="/admin/shop"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/shop") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            Shop
+                        </Link>
+                        <Link
+                            href="/admin/garage"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/garage") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            Garage
+                        </Link>
+                        <Link
+                            href="/admin/orders"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/orders") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            Orders
+                        </Link>
+                    </nav>
                 </div>
-                <nav className="px-4 space-y-2">
+
+                {/* Exit Controls */}
+                <div className="mt-auto p-4 border-t border-zinc-900 space-y-3">
                     <Link
-                        href="/admin"
-                        className={`block px-4 py-2 rounded transition-colors ${pathname === "/admin" ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                            }`}
+                        href="/"
+                        className="block w-full px-4 py-2 text-center rounded transition-colors text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800 text-sm font-semibold uppercase tracking-widest"
                     >
-                        Dashboard
+                        Exit to Site
                     </Link>
-                    <Link
-                        href="/admin/blog"
-                        className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/blog") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                            }`}
+                    <button
+                        onClick={logout}
+                        className="block w-full px-4 py-2 text-center rounded transition-colors text-red-500 hover:text-white hover:bg-red-600 border border-red-900/30 hover:border-red-600 bg-red-950/20 text-sm font-semibold uppercase tracking-widest"
                     >
-                        Blog
-                    </Link>
-                    <Link
-                        href="/admin/shop"
-                        className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/shop") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                            }`}
-                    >
-                        Shop
-                    </Link>
-                    <Link
-                        href="/admin/garage"
-                        className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/garage") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                            }`}
-                    >
-                        Garage
-                    </Link>
-                    <Link
-                        href="/admin/orders"
-                        className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/orders") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                            }`}
-                    >
-                        Orders
-                    </Link>
-                </nav>
+                        Logout
+                    </button>
+                </div>
             </aside>
             <main className="flex-1 p-8 overflow-y-auto">
                 {children}

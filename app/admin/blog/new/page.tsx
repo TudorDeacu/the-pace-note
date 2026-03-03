@@ -68,6 +68,29 @@ export default function NewArticle() {
         setBlocks(newBlocks);
     };
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        setLoading(true);
+        const { error: uploadError } = await supabase.storage
+            .from('blogs')
+            .upload(filePath, file);
+
+        if (uploadError) {
+            alert('Error uploading image: ' + uploadError.message);
+            setLoading(false);
+            return;
+        }
+
+        const { data } = supabase.storage.from('blogs').getPublicUrl(filePath);
+        updateBlock(id, "imageUrl", data.publicUrl);
+        setLoading(false);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -183,6 +206,10 @@ export default function NewArticle() {
                                                 placeholder="Image URL (e.g., https://...)"
                                                 autoFocus
                                             />
+                                            <label className="cursor-pointer bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition flex items-center gap-2 text-sm font-semibold whitespace-nowrap">
+                                                <span>Upload</span>
+                                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, block.id)} />
+                                            </label>
                                         </div>
                                         {block.imageUrl && (
                                             // eslint-disable-next-line @next/next/no-img-element
@@ -228,6 +255,10 @@ export default function NewArticle() {
                                                         className="w-full bg-black/50 border border-zinc-800 rounded p-2 text-white text-sm outline-none focus:border-red-600"
                                                         placeholder="Image URL..."
                                                     />
+                                                    <label className="cursor-pointer bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition flex items-center gap-2 text-sm font-semibold whitespace-nowrap">
+                                                        <span>Upload</span>
+                                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, block.id)} />
+                                                    </label>
                                                 </div>
                                                 {block.imageUrl ? (
                                                     // eslint-disable-next-line @next/next/no-img-element
