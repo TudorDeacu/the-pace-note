@@ -28,23 +28,34 @@ export default function NewProject() {
         e.preventDefault();
         setLoading(true);
 
-        const slug = slugify(title) + '-' + Date.now().toString().slice(-4); // Ensure uniqueness
+        try {
+            if (!title.trim()) {
+                throw new Error("Title is required");
+            }
 
-        const { error } = await supabase
-            .from('projects')
-            .insert({
-                title,
-                slug,
-                content: { blocks, excerpt }, // Store blocks and excerpt in JSONB
-                published: true // Default to published for now
-            });
+            const slug = slugify(title) + '-' + Date.now().toString().slice(-4); // Ensure uniqueness
 
-        if (error) {
-            console.error(error);
-            alert("Error saving project: " + error.message);
-            setLoading(false);
-        } else {
+            const { error } = await supabase
+                .from('projects')
+                .insert({
+                    title,
+                    slug,
+                    content: { blocks, excerpt }, // Store blocks and excerpt in JSONB
+                    published: true // Default to published for now
+                });
+
+            if (error) {
+                console.error("Supabase insert error:", error);
+                throw new Error(error.message);
+            }
+            
             router.push("/admin/garage");
+            router.refresh();
+
+        } catch (err: any) {
+            console.error(err);
+            alert("Error saving project: " + err.message);
+            setLoading(false);
         }
     };
 

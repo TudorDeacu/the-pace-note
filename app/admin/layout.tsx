@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, isAdmin, logout } = useAuth();
+    const { isAuthenticated, isAdmin, loading, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
@@ -18,17 +18,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }, [isAuthenticated, router, pathname]);
 
     // Show loading or nothing while authentication state is being determined
-    // (This simple check assumes isAuthenticated becomes true only after loading finishes, 
-    // but AdminAuthContext should probably expose a 'loading' state for better UX, 
-    // for now we rely on the context's internal loading state which prevents children render if we moved it up,
-    // but here we just check values. Authentication check is async so there might be a flash.)
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+            </div>
+        );
+    }
 
     if (pathname === "/admin/login") {
         return <>{children}</>;
     }
 
     if (!isAuthenticated) {
-        return null;
+        return null; // Will redirect via useEffect
     }
 
     // Role check

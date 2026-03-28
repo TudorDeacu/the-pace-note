@@ -28,23 +28,34 @@ export default function NewArticle() {
         e.preventDefault();
         setLoading(true);
 
-        const slug = slugify(title) + '-' + Date.now().toString().slice(-4); // Ensure uniqueness
+        try {
+            if (!title.trim()) {
+                throw new Error("Title is required");
+            }
 
-        const { error } = await supabase
-            .from('articles')
-            .insert({
-                title,
-                slug,
-                content: { blocks, excerpt }, // Store blocks and excerpt in JSONB
-                published: true // Default to published for now, or add a toggle
-            });
+            const slug = slugify(title) + '-' + Date.now().toString().slice(-4); // Ensure uniqueness
 
-        if (error) {
-            console.error(error);
-            alert("Error saving article: " + error.message);
-            setLoading(false);
-        } else {
+            const { error } = await supabase
+                .from('articles')
+                .insert({
+                    title,
+                    slug,
+                    content: { blocks, excerpt }, // Store blocks and excerpt in JSONB
+                    published: true // Default to published for now, or add a toggle
+                });
+
+            if (error) {
+                console.error("Supabase insert error:", error);
+                throw new Error(error.message);
+            }
+            
             router.push("/admin/blog");
+            router.refresh();
+            
+        } catch (err: any) {
+            console.error(err);
+            alert("Error saving article: " + err.message);
+            setLoading(false); // Reset loading purely only on error
         }
     };
 
