@@ -49,20 +49,31 @@ export default function EditProject() {
         e.preventDefault();
         setSaving(true);
 
-        const { error } = await supabase
-            .from('projects')
-            .update({
-                title,
-                content: { blocks, excerpt },
-            })
-            .eq('id', params?.id);
+        try {
+            if (!title.trim()) {
+                throw new Error("Title is required");
+            }
 
-        if (error) {
-            console.error(error);
-            alert("Error updating project: " + error.message);
-            setSaving(false);
-        } else {
+            const { error } = await supabase
+                .from('projects')
+                .update({
+                    title,
+                    content: { blocks, excerpt },
+                })
+                .eq('id', params?.id);
+
+            if (error) {
+                console.error("Supabase update error:", error);
+                throw new Error(error.message);
+            }
+            
             router.push("/admin/garage");
+            router.refresh();
+
+        } catch (err: any) {
+            console.error(err);
+            alert("Error updating project: " + err.message);
+            setSaving(false);
         }
     };
 
@@ -70,16 +81,23 @@ export default function EditProject() {
         if (!confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
 
         setSaving(true);
-        const { error } = await supabase
-            .from('projects')
-            .delete()
-            .eq('id', params?.id);
+        try {
+            const { error } = await supabase
+                .from('projects')
+                .delete()
+                .eq('id', params?.id);
 
-        if (error) {
-            alert("Error deleting project: " + error.message);
-            setSaving(false);
-        } else {
+            if (error) {
+                console.error("Supabase delete error:", error);
+                throw new Error(error.message);
+            }
+            
             router.push("/admin/garage");
+            router.refresh();
+
+        } catch (err: any) {
+            alert("Error deleting project: " + err.message);
+            setSaving(false);
         }
     };
 

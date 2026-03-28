@@ -48,43 +48,44 @@ export default function EditAboutPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
-
-        if (articleId) {
-            // Update existing
-            const { error } = await supabase
-                .from('articles')
-                .update({
-                    content: { blocks },
-                })
-                .eq('id', articleId);
-            
-            if (error) {
-                console.error(error);
-                alert("Error updating page: " + error.message);
-            } else {
+        try {
+            if (articleId) {
+                // Update existing
+                const { error } = await supabase
+                    .from('articles')
+                    .update({
+                        content: { blocks },
+                    })
+                    .eq('id', articleId);
+                
+                if (error) throw new Error(error.message);
+                
                 alert("Page updated successfully!");
                 router.push("/about");
-            }
-        } else {
-            // Create new
-            const { error } = await supabase
-                .from('articles')
-                .insert({
-                    title: 'Despre Noi',
-                    slug: 'page-about-us',
-                    content: { blocks },
-                    published: true
-                });
-            
-            if (error) {
-                console.error(error);
-                alert("Error saving page: " + error.message);
+                router.refresh();
             } else {
+                // Create new
+                const { error } = await supabase
+                    .from('articles')
+                    .insert({
+                        title: 'Despre Noi',
+                        slug: 'page-about-us',
+                        content: { blocks },
+                        published: true
+                    });
+                
+                if (error) throw new Error(error.message);
+                
                 alert("Page created successfully!");
                 router.push("/about");
+                router.refresh();
             }
+        } catch (err: any) {
+            console.error(err);
+            alert("Error saving page: " + err.message);
+        } finally {
+            setSaving(false);
         }
-        setSaving(false);
     };
 
     if (loading) return <div className="text-white p-8">Loading...</div>;
