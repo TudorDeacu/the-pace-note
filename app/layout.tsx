@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { TranslationProvider } from "@/context/TranslationContext";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({
   children,
@@ -35,6 +36,7 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               {children}
+              <Analytics />
             </CartProvider>
           </AuthProvider>
         </TranslationProvider>
