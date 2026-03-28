@@ -6,6 +6,7 @@ export default async function AdminBlog() {
     const { data: articles } = await supabase
         .from('articles')
         .select('*')
+        .not('slug', 'like', 'page-%') // Exclude all dynamic admin pages
         .order('created_at', { ascending: false });
 
     return (

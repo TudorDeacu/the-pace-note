@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import LanguageToggle from "./LanguageToggle";
+// import LanguageToggle from "./LanguageToggle";
 import T from "./T";
 
 export default function Footer() {
@@ -22,13 +22,15 @@ export default function Footer() {
                         </div>
                         <div className="flex gap-6 text-sm text-zinc-400 justify-center">
                             {/* Social placeholders or real links if provided */}
-                            <Link href="https://www.instagram.com/thepacenote/" className="hover:text-red-600 transition-colors uppercase tracking-widest center">Instagram</Link>
-                            <Link href="https://www.facebook.com/profile.php?id=61583479544402" className="hover:text-red-600 transition-colors uppercase tracking-widest center">Facebook</Link>
-                            <Link href="https://www.youtube.com/channel/UC1hSXkxGPGsaXFuNtKLIjvA" className="hover:text-red-600 transition-colors uppercase tracking-widest center">YouTube</Link>
+                            <Link href="https://www.instagram.com/thepacenote/" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors uppercase tracking-widest center">Instagram</Link>
+                            <Link href="https://www.facebook.com/profile.php?id=61583479544402" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors uppercase tracking-widest center">Facebook</Link>
+                            <Link href="https://www.youtube.com/channel/UC1hSXkxGPGsaXFuNtKLIjvA" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors uppercase tracking-widest center">YouTube</Link>
                         </div>
+                        {/* 
                         <div className="flex justify-center md:justify-start w-full">
                             <LanguageToggle />
                         </div>
+                        */}
                     </div>
                 </div>
                 <div className="mt-8 pt-8 border-t border-zinc-900 text-center text-xs text-zinc-600">

@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import T from "@/components/T";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 
@@ -46,9 +47,11 @@ export default function Garage() {
                 <div className="py-24 sm:py-32">
                     <div className="mx-auto max-w-2xl lg:mx-0">
                         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase"><T>Garaj</T></h2>
+                        {/*
                         <p className="mt-2 text-lg leading-8 text-zinc-400">
                             <T>Proiectele noastre și mașinile care ne inspiră.</T>
                         </p>
+                        */}
                     </div>
 
                     <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-zinc-800 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
@@ -59,46 +62,45 @@ export default function Garage() {
                                 <T>În lucru.</T>
                             </div>
                         ) : (
-                            projects.map((project) => (
-                                <article key={project.id} className="flex max-w-xl flex-col items-start justify-between group">
-                                    <div className="relative w-full">
-                                        {/* Image handling - first block image or placeholder */}
-                                        {project.content?.blocks?.find((b: any) => b.type === 'image' || b.type === 'image-text')?.imageUrl ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={project.content.blocks.find((b: any) => b.type === 'image' || b.type === 'image-text').imageUrl}
-                                                alt={project.title}
-                                                className="aspect-[16/9] w-full rounded-2xl bg-zinc-800 object-cover sm:aspect-[2/1] lg:aspect-[3/2] group-hover:opacity-80 transition-opacity"
-                                            />
-                                        ) : (
-                                            <div className="aspect-[16/9] w-full rounded-2xl bg-zinc-900 border border-zinc-800 sm:aspect-[2/1] lg:aspect-[3/2] flex items-center justify-center text-zinc-700">
-                                                <T>Fără imagine</T>
+                            projects.map((project) => {
+                                const thumbnail = project.image_url || 
+                                    (project.content?.blocks?.find((b: any) => (b.type === 'image' || b.type === 'image-text') && b.imageUrl)?.imageUrl);
+
+                                return (
+                                    <article key={project.id} className="flex flex-col items-start justify-between bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-900 transition-colors group overflow-hidden">
+                                        <div className="relative h-48 w-full overflow-hidden">
+                                            {thumbnail ? (
+                                                <Image
+                                                    src={thumbnail}
+                                                    alt={project.title}
+                                                    fill
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                />
+                                            ) : (
+                                                <div className="h-full w-full bg-zinc-800 flex items-center justify-center text-zinc-600"><T>Fără imagine</T></div>
+                                            )}
+                                        </div>
+                                        <div className="p-6 flex flex-col flex-1 w-full">
+                                            <div className="flex items-center gap-x-4 text-xs mb-4">
+                                                <time dateTime={project.created_at} className="text-zinc-500">
+                                                    {new Date(project.created_at).toLocaleDateString()}
+                                                </time>
                                             </div>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-x-4 text-xs mt-8">
-                                        <time dateTime={project.created_at} className="text-zinc-500">
-                                            {new Date(project.created_at).toLocaleDateString()}
-                                        </time>
-                                    </div>
-                                    <div className="group relative">
-                                        <h3 className="mt-3 text-lg font-semibold leading-6 text-white group-hover:text-red-500 transition-colors uppercase tracking-wide">
-                                            <Link href={`/garage/${project.slug}`}>
-                                                <span className="absolute inset-0" />
-                                                {project.title}
-                                            </Link>
-                                        </h3>
-                                        <p className="mt-5 line-clamp-3 text-sm leading-6 text-zinc-400">
-                                            {project.content?.excerpt || project.content?.blocks?.find((b: any) => b.type === 'paragraph')?.content || "Fără descriere"}
-                                        </p>
-                                    </div>
-                                    <div className="relative mt-auto pt-8 flex items-center gap-x-4">
-                                        <Link href={`/garage/${project.slug}`} className="text-sm font-semibold leading-6 text-red-600 hover:text-red-500 flex items-center gap-2 uppercase tracking-widest">
-                                            <T>Citește Mai Mult</T> <ArrowRightIcon className="w-4 h-4" />
-                                        </Link>
-                                    </div>
-                                </article>
-                            ))
+                                            <div className="group relative flex-1">
+                                                <h3 className="text-lg font-semibold leading-6 text-white group-hover:text-red-500 transition-colors uppercase tracking-wide">
+                                                    <Link href={`/garage/${project.slug}`}>
+                                                        <span className="absolute inset-0" />
+                                                        {project.title}
+                                                    </Link>
+                                                </h3>
+                                                <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-400">
+                                                    {project.content?.excerpt || project.content?.blocks?.find((b: any) => b.type === 'paragraph')?.content || <T>Citește Mai Mult</T>}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                );
+                            })
                         )}
                     </div>
                 </div>

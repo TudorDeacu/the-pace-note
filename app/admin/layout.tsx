@@ -70,6 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         >
                             Blog
                         </Link>
+                        {/* 
                         <Link
                             href="/admin/shop"
                             className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/shop") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
@@ -77,6 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         >
                             Shop
                         </Link>
+                        */}
                         <Link
                             href="/admin/garage"
                             className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/garage") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
@@ -85,12 +87,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             Garage
                         </Link>
                         <Link
+                            href="/admin/about"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/about") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            About Us
+                        </Link>
+                        <Link
+                            href="/admin/home"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/home") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            Home Page
+                        </Link>
+                        {/* 
+                        <Link
                             href="/admin/orders"
                             className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/orders") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                 }`}
                         >
                             Orders
                         </Link>
+                        */}
                     </nav>
                 </div>
 

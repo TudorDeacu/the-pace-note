@@ -4,6 +4,11 @@ import { useTranslationContext } from "@/context/TranslationContext";
 import { useEffect, useState } from "react";
 
 export default function T({ children }: { children: React.ReactNode }) {
+    // TEMPORARILY DISABLED TRANSLATION:
+    // Simply return the pristine string (Romanian text)
+    return <>{children}</>;
+
+    /*
     const { language, dictionary, isLoading } = useTranslationContext();
     const [translatedText, setTranslatedText] = useState<string | null>(null);
     const textToTranslate = typeof children === "string" ? children : null;
@@ -57,4 +62,5 @@ export default function T({ children }: { children: React.ReactNode }) {
 
     // Render the original text if we are in Romanian OR if we haven't found a translation yet
     return <>{translatedText || children}</>;
+    */
 }

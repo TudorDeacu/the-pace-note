@@ -8,16 +8,16 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import logo from "../app/images/logo.png";
 import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext";
-import CartDrawer from "./CartDrawer";
-import LanguageToggle from "./LanguageToggle";
+// import { useCart } from "@/context/CartContext";
+// import CartDrawer from "./CartDrawer";
+// import LanguageToggle from "./LanguageToggle";
 import T from "./T";
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { isAuthenticated, isAdmin } = useAuth();
     const pathname = usePathname();
-    const { cartCount, setCartOpen } = useCart();
+    // const { cartCount, setCartOpen } = useCart();
 
     // Filter out "Account" from main nav if not authenticated, or keep it and let it redirect to login?
     // Usually "Account" in nav is fine, page handles redirect. But we can make it dynamic.
@@ -29,7 +29,7 @@ export default function Navbar() {
         { name: "Acasă", href: "/" },
         { name: "Blog", href: "/blog" },
         { name: "Garaj", href: "/garage" },
-        { name: "Magazin", href: "/shop" },
+        // { name: "Magazin", href: "/shop" },
     ];
 
     if (isAuthenticated) {
@@ -101,10 +101,11 @@ export default function Navbar() {
                                 : "text-zinc-300 hover:text-white hover:text-red-500"
                                 }`}
                         >
-                            <T>Logare</T>
+                            <T>Login</T>
                         </Link>
                     )}
-                    <LanguageToggle />
+                    {/* <LanguageToggle /> */}
+                    {/* 
                     <button
                         onClick={() => setCartOpen(true)}
                         className="text-sm font-semibold leading-6 text-zinc-300 hover:text-red-500 transition-colors ml-4 relative"
@@ -116,6 +117,7 @@ export default function Navbar() {
                             </span>
                         )}
                     </button>
+                    */}
                 </div>
             </nav>
             <Dialog
@@ -191,14 +193,14 @@ export default function Navbar() {
                                     </Link>
                                 )}
                                 <div className="-mx-3 block rounded-lg px-3 py-2">
-                                    <LanguageToggle />
+                                    {/* <LanguageToggle /> */}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </DialogPanel>
             </Dialog>
-            <CartDrawer />
+            {/* <CartDrawer /> */}
         </header>
     );
 }

@@ -34,7 +34,7 @@ export default function AdminDashboard() {
             // Count tables
             const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
             const { count: projectsCount } = await supabase.from('projects').select('*', { count: 'exact', head: true });
-            const { count: articlesCount } = await supabase.from('articles').select('*', { count: 'exact', head: true });
+            const { count: articlesCount } = await supabase.from('articles').select('*', { count: 'exact', head: true }).not('slug', 'like', 'page-%');
 
             // Fetch orders for analytics
             const { data: orders } = await supabase.from('orders').select('status, total_amount, created_at');
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
         <div>
             <h1 className="text-3xl font-bold uppercase tracking-tighter mb-8 text-white">Dashboard</h1>
 
-            {/* Key Metrics Grid */}
+            {/* Key Metrics Grid
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
                     <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Total Revenue</h3>
@@ -129,9 +129,9 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* Charts Section */}
+            // Charts Section 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                {/* Revenue Chart */}
+                // Revenue Chart 
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
                     <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Revenue Trend</h3>
                     <div className="h-64">
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* Orders Status Chart */}
+                // Orders Status Chart 
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
                     <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6">Order Status</h3>
                     <div className="h-64">
@@ -187,6 +187,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             </div>
+            */}
 
             {/* Secondary Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

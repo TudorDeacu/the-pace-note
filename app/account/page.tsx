@@ -176,7 +176,7 @@ export default function Account() {
         if (!user) return;
 
         // Validation
-        const requiredFields = ['first_name', 'last_name', 'phone_number', 'street_name', 'street_number', 'city', 'state', 'postal_code', 'country'];
+        const requiredFields = ['first_name', 'last_name', 'phone_number']; // disabled address fields: 'street_name', 'street_number', 'city', 'state', 'postal_code', 'country'
         const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
 
         if (missingFields.length > 0) {
@@ -320,6 +320,7 @@ export default function Account() {
                                         <dt className="text-sm font-medium text-zinc-400"><T>Telefon</T></dt>
                                         <dd className="mt-1 text-sm text-white">{profile?.phone_number || '-'}</dd>
                                     </div>
+                                    {/* 
                                     {profile?.is_company && (
                                         <>
                                             <div className="sm:col-span-1">
@@ -360,10 +361,12 @@ export default function Account() {
                                             </div>
                                         </>
                                     )}
+                                    */}
                                 </dl>
                             </div>
 
                             {/* Order History Section */}
+                            {/* 
                             <div className="bg-zinc-900/50 rounded-lg p-6 border border-zinc-800 max-w-4xl mt-8">
                                 <h3 className="text-xl font-bold text-white uppercase tracking-wide mb-6"><T>Order History</T></h3>
                                 {loadingOrders ? (
@@ -415,6 +418,7 @@ export default function Account() {
                                     </div>
                                 )}
                             </div>
+                            */}
                         </>
                     ) : (
                         <form onSubmit={handleSubmit} className="bg-zinc-900/50 rounded-lg p-6 border border-zinc-800 max-w-4xl">
@@ -466,11 +470,12 @@ export default function Account() {
 
 
 
+                                {/*
                                 <div className="sm:col-span-full border-t border-zinc-800 pt-6 mt-2">
                                     <h4 className="text-lg font-medium text-white mb-4"><T>Adresă de facturare</T></h4>
                                 </div>
 
-                                {/* Company Info Header */}
+                                // Company Info Header
                                 <div className="sm:col-span-full mb-6">
                                     <div className="relative flex items-start">
                                         <div className="flex h-6 items-center">
@@ -551,10 +556,9 @@ export default function Account() {
                                     </div>
                                 </div>
 
-                                {/* Replaced Address Line 2 with specific fields, but might keep it as generic "Additional Info"? 
-                                    The user requested Floor/Apt specifically. Let's hide the generic field to avoid confusion or use it as such.
-                                    For now, I'll remove the explicit Address Line 2 input and assume Floor/Apt covers the needs.
-                                */}
+                                // Replaced Address Line 2 with specific fields, but might keep it as generic "Additional Info"? 
+                                // The user requested Floor/Apt specifically. Let's hide the generic field to avoid confusion or use it as such.
+                                // For now, I'll remove the explicit Address Line 2 input and assume Floor/Apt covers the needs.
 
                                 <div className="sm:col-span-2 sm:col-start-1">
                                     <label htmlFor="city" className="block text-sm font-medium leading-6 text-zinc-400"><T>Oraș / Localitate</T> <span className="text-red-500">*</span></label>
@@ -598,7 +602,7 @@ export default function Account() {
                                 </div>
 
 
-                                {/* Shipping Address Checkbox */}
+                                // Shipping Address Checkbox
                                 <div className="sm:col-span-full border-t border-zinc-800 pt-6 mt-2">
                                     <div className="relative flex items-start">
                                         <div className="flex h-6 items-center">
@@ -704,6 +708,7 @@ export default function Account() {
                                         </div>
                                     </>
                                 )}
+                                */}
                             </div>
 
                             <div className="mt-8 flex justify-end gap-4">

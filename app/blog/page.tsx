@@ -22,6 +22,7 @@ export interface Article {
     imageUrl?: any; // StaticImageData or string
     image_url?: string;
     is_demo?: boolean;
+    content?: any;
 }
 
 const DEMO_ARTICLES: Article[] = [
@@ -65,11 +66,14 @@ export default function Blog() {
                 .from('articles')
                 .select('*')
                 .eq('published', true) // Only published
+                .not('slug', 'like', 'page-%') // Exclude all dynamic pages (e.g. page-about-us, page-home)
                 .order('created_at', { ascending: false });
 
             if (data && data.length > 0) {
                 // Filter logic: Show REAL articles if any exist; otherwise show DEMO articles.
-                const realArticles = data.filter((a: any) => a.is_demo === false);
+                // Note: articles created via admin may not have `is_demo` set at all (undefined/null),
+                // so we check if `is_demo` is explicitly true, or otherwise consider it a real article.
+                const realArticles = data.filter((a: any) => a.is_demo !== true);
                 const demoArticles = data.filter((a: any) => a.is_demo === true);
 
                 if (realArticles.length > 0) {
@@ -96,9 +100,11 @@ export default function Blog() {
                 <div className="py-24 sm:py-32">
                     <div className="mx-auto max-w-2xl lg:mx-0">
                         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase"><T>Blog</T></h2>
+                        {/*
                         <p className="mt-2 text-lg leading-8 text-zinc-400">
                             <T>Povești din motorsportul românesc.</T>
                         </p>
+                        */}
                     </div>
                     <div className="mt-10 border-t border-zinc-800 pt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         {loading ? (
@@ -106,26 +112,31 @@ export default function Blog() {
                         ) : articles.length === 0 ? (
                             <p className="text-zinc-500 italic"><T>Articolele vor apărea aici în curând.</T></p>
                         ) : (
-                            articles.map((article) => (
-                                <article key={article.id} className="flex flex-col items-start justify-between bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-900 transition-colors group overflow-hidden">
-                                    <div className="relative h-48 w-full overflow-hidden">
-                                        {article.imageUrl ? (
-                                            <Image
-                                                src={article.image_url || article.imageUrl}
-                                                alt={article.title}
-                                                fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            />
-                                        ) : (
-                                            <div className="h-full w-full bg-zinc-800 flex items-center justify-center text-zinc-600"><T>Fără imagine</T></div>
-                                        )}
-                                    </div>
-                                    <div className="p-6 flex flex-col flex-1 w-full">
-                                        <div className="flex items-center gap-x-4 text-xs mb-4">
-                                            <time dateTime={article.created_at} className="text-zinc-500">
-                                                {new Date(article.created_at).toLocaleDateString()}
-                                            </time>
+                            articles.map((article) => {
+                                // Extract thumbnail from explicit column or perfectly sniff the first image block inside content
+                                const thumbnail = article.image_url || article.imageUrl || 
+                                    (article.content?.blocks?.find((b: any) => (b.type === 'image' || b.type === 'image-text') && b.imageUrl)?.imageUrl);
+
+                                return (
+                                    <article key={article.id} className="flex flex-col items-start justify-between bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-900 transition-colors group overflow-hidden">
+                                        <div className="relative h-48 w-full overflow-hidden">
+                                            {thumbnail ? (
+                                                <Image
+                                                    src={thumbnail}
+                                                    alt={article.title}
+                                                    fill
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                />
+                                            ) : (
+                                                <div className="h-full w-full bg-zinc-800 flex items-center justify-center text-zinc-600"><T>Fără imagine</T></div>
+                                            )}
                                         </div>
+                                        <div className="p-6 flex flex-col flex-1 w-full">
+                                            <div className="flex items-center gap-x-4 text-xs mb-4">
+                                                <time dateTime={article.created_at} className="text-zinc-500">
+                                                    {new Date(article.created_at).toLocaleDateString()}
+                                                </time>
+                                            </div>
                                         <div className="group relative flex-1">
                                             <h3 className="text-lg font-semibold leading-6 text-white group-hover:text-red-500 transition-colors uppercase tracking-wide">
                                                 <Link href={`/blog/${article.slug}`}>
@@ -139,7 +150,8 @@ export default function Blog() {
                                         </div>
                                     </div>
                                 </article>
-                            ))
+                            );
+                        })
                         )}
                     </div>
                 </div>
