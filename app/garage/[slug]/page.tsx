@@ -1,8 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -27,41 +23,22 @@ interface Project {
     created_at: string;
 }
 
-export default function GarageProject() {
-    const params = useParams();
-    const [project, setProject] = useState<Project | null>(null);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+export default async function GarageProject({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const supabase = await createClient();
 
-    useEffect(() => {
-        async function fetchProject() {
-            if (!params?.slug) return;
-            const { data, error } = await supabase
-                .from('projects')
-                .select('*')
-                .eq('slug', params.slug)
-                .single();
+    let project: Project | null = null;
+    
+    const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('slug', slug)
+        .single();
 
-            if (data) {
-                setProject(data);
-            } else {
-                console.error("Error loading project:", error);
-            }
-            setLoading(false);
-        }
-        fetchProject();
-    }, [params?.slug]);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-black">
-                <Navbar />
-                <main className="pt-32 px-6 max-w-4xl mx-auto min-h-[60vh] flex items-center justify-center">
-                    <p className="text-zinc-500">Loading project...</p>
-                </main>
-                <Footer />
-            </div>
-        );
+    if (data) {
+        project = data;
+    } else {
+        console.error("Error loading project:", error);
     }
 
     if (!project) {

@@ -1,10 +1,7 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import T from "@/components/T";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 interface Block {
     id: string;
@@ -15,26 +12,19 @@ interface Block {
     imageSide?: "left" | "right";
 }
 
-export default function About() {
-    const [blocks, setBlocks] = useState<Block[] | null>(null);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+export default async function About() {
+    const supabase = await createClient();
 
-    useEffect(() => {
-        async function fetchArticle() {
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('slug', 'page-about-us')
-                .single();
+    const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('slug', 'page-about-us')
+        .single();
 
-            if (data && data.content && data.content.blocks && data.content.blocks.length > 0) {
-                setBlocks(data.content.blocks);
-            }
-            setLoading(false);
-        }
-        fetchArticle();
-    }, []);
+    let blocks: Block[] | null = null;
+    if (data && data.content && data.content.blocks && data.content.blocks.length > 0) {
+        blocks = data.content.blocks;
+    }
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -42,17 +32,7 @@ export default function About() {
             <main className="pt-24 px-6 lg:px-8 max-w-7xl mx-auto pb-20">
                 <div className="py-24 sm:py-32">
                     <div className="mx-auto max-w-3xl lg:mx-0">
-                        {loading ? (
-                            <div className="animate-pulse flex space-x-4">
-                                <div className="flex-1 space-y-6 py-1">
-                                    <div className="h-4 bg-zinc-800 rounded w-3/4"></div>
-                                    <div className="space-y-3">
-                                        <div className="h-4 bg-zinc-800 rounded"></div>
-                                        <div className="h-4 bg-zinc-800 rounded w-5/6"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : blocks ? (
+                        {blocks ? (
                             <div className="space-y-12">
                                 <h1 className="text-4xl font-bold uppercase tracking-tighter sm:text-5xl mb-12"><T>Despre Noi</T></h1>
                                 {blocks.map((block) => (
