@@ -1,11 +1,8 @@
-"use client";
-
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import T from "@/components/T";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import Image from "next/image";
 
 import blogTrackDay from "../images/blog_track_day.png";
@@ -55,43 +52,32 @@ const DEMO_ARTICLES: Article[] = [
     },
 ];
 
-export default function Blog() {
-    const [articles, setArticles] = useState<Article[]>([]);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+export default async function Blog() {
+    const supabase = await createClient();
+    let articles: Article[] = [];
 
-    useEffect(() => {
-        async function fetchArticles() {
-            const { data } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('published', true) // Only published
-                .not('slug', 'like', 'page-%') // Exclude all dynamic pages (e.g. page-about-us, page-home)
-                .order('created_at', { ascending: false });
+    const { data } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('published', true) // Only published
+        .not('slug', 'like', 'page-%') // Exclude all dynamic pages (e.g. page-about-us, page-home)
+        .order('created_at', { ascending: false });
 
-            if (data && data.length > 0) {
-                // Filter logic: Show REAL articles if any exist; otherwise show DEMO articles.
-                // Note: articles created via admin may not have `is_demo` set at all (undefined/null),
-                // so we check if `is_demo` is explicitly true, or otherwise consider it a real article.
-                const realArticles = data.filter((a: any) => a.is_demo !== true);
-                const demoArticles = data.filter((a: any) => a.is_demo === true);
+    if (data && data.length > 0) {
+        // Filter logic: Show REAL articles if any exist; otherwise show DEMO articles.
+        const realArticles = data.filter((a: any) => a.is_demo !== true);
+        const demoArticles = data.filter((a: any) => a.is_demo === true);
 
-                if (realArticles.length > 0) {
-                    setArticles(realArticles);
-                } else {
-                    if (demoArticles.length > 0) {
-                        setArticles(demoArticles);
-                    } else {
-                        setArticles(DEMO_ARTICLES);
-                    }
-                }
-            } else {
-                setArticles(DEMO_ARTICLES);
-            }
-            setLoading(false);
+        if (realArticles.length > 0) {
+            articles = realArticles;
+        } else if (demoArticles.length > 0) {
+            articles = demoArticles;
+        } else {
+            articles = DEMO_ARTICLES;
         }
-        fetchArticles();
-    }, []);
+    } else {
+        articles = DEMO_ARTICLES;
+    }
 
     return (
         <div className="min-h-screen bg-black">
@@ -107,9 +93,7 @@ export default function Blog() {
                         */}
                     </div>
                     <div className="mt-10 border-t border-zinc-800 pt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                        {loading ? (
-                            <p className="text-zinc-500"><T>Se încarcă...</T></p>
-                        ) : articles.length === 0 ? (
+                        {articles.length === 0 ? (
                             <p className="text-zinc-500 italic"><T>Articolele vor apărea aici în curând.</T></p>
                         ) : (
                             articles.map((article) => {

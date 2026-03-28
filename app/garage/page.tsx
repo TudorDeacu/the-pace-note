@@ -1,13 +1,10 @@
-"use client";
-
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import T from "@/components/T";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
 
 interface Project {
     id: string;
@@ -19,26 +16,19 @@ interface Project {
     image_url?: string;
 }
 
-export default function Garage() {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+export default async function Garage() {
+    const supabase = await createClient();
+    let projects: Project[] = [];
 
-    useEffect(() => {
-        async function fetchProjects() {
-            const { data } = await supabase
-                .from('projects')
-                .select('*')
-                .eq('published', true)
-                .order('created_at', { ascending: false });
+    const { data } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('published', true)
+        .order('created_at', { ascending: false });
 
-            if (data) {
-                setProjects(data);
-            }
-            setLoading(false);
-        }
-        fetchProjects();
-    }, []);
+    if (data) {
+        projects = data;
+    }
 
     return (
         <div className="min-h-screen bg-black">
@@ -55,9 +45,7 @@ export default function Garage() {
                     </div>
 
                     <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-zinc-800 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-                        {loading ? (
-                            <div className="col-span-full text-center text-zinc-500 italic py-12"><T>Se încarcă...</T></div>
-                        ) : !projects || projects.length === 0 ? (
+                        {!projects || projects.length === 0 ? (
                             <div className="col-span-full text-center text-zinc-500 italic py-12">
                                 <T>În lucru.</T>
                             </div>
