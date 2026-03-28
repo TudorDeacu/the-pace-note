@@ -89,7 +89,7 @@ export default function Home() {
           <h1
             style={{
               color: "#E9482F",
-              fontSize: "clamp(3.5rem, 14vw, 10rem)",
+              fontSize: "clamp(2.5rem, 8vw, 6rem)",
               fontWeight: 900,
               letterSpacing: "-0.03em",
               textTransform: "uppercase",
