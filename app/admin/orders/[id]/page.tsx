@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 interface OrderItem {
     id: string;
@@ -71,15 +72,19 @@ export default function OrderDetails() {
     const updateStatus = async (newStatus: string) => {
         if (!order) return;
         setUpdating(true);
-        const { error } = await supabase
-            .from('orders')
-            .update({ status: newStatus })
-            .eq('id', order.id);
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ status: newStatus })
+                .eq('id', order.id);
 
-        if (error) {
-            alert("Error updating status");
-        } else {
+            if (error) throw new Error(error.message);
+            
             setOrder({ ...order, status: newStatus });
+            toast.success("Statusul comenzii a fost actualizat!");
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Eroare la actualizarea statusului: " + err.message);
         }
         setUpdating(false);
     };

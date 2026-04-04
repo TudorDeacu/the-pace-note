@@ -5,6 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { PlusIcon, TrashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface Product {
     id: string;
@@ -23,6 +25,7 @@ export default function EditProduct() {
     const supabase = createClient();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -58,7 +61,7 @@ export default function EditProduct() {
                 setSizes(data.sizes || []);
             } else {
                 console.error("Error fetching product:", error);
-                alert("Product not found");
+                toast.error("Produsul nu a fost găsit");
                 router.push("/admin/shop");
             }
             setLoading(false);
@@ -93,7 +96,7 @@ export default function EditProduct() {
             .upload(filePath, file);
 
         if (uploadError) {
-            alert('Error uploading image: ' + uploadError.message);
+            toast.error('Eroare la încărcarea imaginii: ' + uploadError.message);
             setSaving(false);
             return;
         }
@@ -142,27 +145,28 @@ export default function EditProduct() {
             .eq('id', params?.id);
 
         if (error) {
-            alert("Error updating product: " + error.message);
+            toast.error("Eroare la actualizarea produsului: " + error.message);
             setSaving(false);
         } else {
+            toast.success("Produs actualizat!");
             router.push("/admin/shop");
         }
     };
 
     // Delete Handler
-    const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
-
+    const executeDelete = async () => {
         setSaving(true);
+        setIsDeleteModalOpen(false);
         const { error } = await supabase
             .from('products')
             .delete()
             .eq('id', params?.id);
 
         if (error) {
-            alert("Error deleting product: " + error.message);
+            toast.error("Eroare la ștergerea produsului: " + error.message);
             setSaving(false);
         } else {
+            toast.success("Produs șters!");
             router.push("/admin/shop");
         }
     };
@@ -179,7 +183,7 @@ export default function EditProduct() {
                 <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit Product</h1>
                 <button
                     type="button"
-                    onClick={handleDelete}
+                    onClick={() => setIsDeleteModalOpen(true)}
                     disabled={saving}
                     className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
                 >
@@ -304,6 +308,15 @@ export default function EditProduct() {
                     </button>
                 </div>
             </form>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                title="Șterge Produsul"
+                description="Acest produs va fi șters definitiv. Ești sigur că vrei să continui?"
+                confirmText="ȘTERGE"
+                onConfirm={executeDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
         </div>
     );
 }

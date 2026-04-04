@@ -3,6 +3,7 @@
 import { useState, Dispatch, SetStateAction } from "react";
 import { TrashIcon, ArrowUpIcon, ArrowDownIcon, PhotoIcon, Bars3BottomLeftIcon, ArrowsRightLeftIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { createClient } from "@/utils/supabase/client";
+import toast from "react-hot-toast";
 
 export type BlockType = "paragraph" | "heading" | "image" | "image-text";
 
@@ -104,9 +105,10 @@ export default function BlockEditor({ blocks, setBlocks, supabaseClient }: Block
 
                 const { data } = supabase.storage.from('blogs').getPublicUrl(filePath);
                 updateBlock(targetBlockId, "imageUrl", data.publicUrl);
+                toast.success("Image uploaded successfully!");
                 
             } catch (err: any) {
-                alert(`Error uploading image ${file.name}: ` + err.message);
+                toast.error(`Error uploading image ${file.name}: ` + err.message);
             } finally {
                 setUploadingBlockId(null);
             }

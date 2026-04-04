@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { PhotoIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 export const DEFAULT_HERO = "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v1/object/public/other/ultrace_gatti.jpeg";
 export const DEFAULT_VISION = "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v1/object/public/other/visiontpn.jpeg";
@@ -60,7 +61,7 @@ export default function EditHomePageMedia() {
             .upload(filePath, file);
 
         if (uploadError) {
-            alert('Error uploading file: ' + uploadError.message);
+            toast.error('Error uploading file: ' + uploadError.message);
             setLoading(false);
             return;
         }
@@ -84,9 +85,9 @@ export default function EditHomePageMedia() {
                 .eq('id', articleId);
             
             if (error) {
-                alert("Error updating page: " + error.message);
+                toast.error("Error updating page: " + error.message);
             } else {
-                alert("Home page media updated successfully!");
+                toast.success("Home page media updated successfully!");
                 router.push("/");
             }
         } else {
@@ -101,9 +102,9 @@ export default function EditHomePageMedia() {
                 });
             
             if (error) {
-                alert("Error saving page: " + error.message);
+                toast.error("Error saving page: " + error.message);
             } else {
-                alert("Home page media updated successfully!");
+                toast.success("Home page media updated successfully!");
                 router.push("/");
             }
         }

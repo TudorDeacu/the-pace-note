@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import BlockEditor, { Block } from "@/components/BlockEditor";
+import { toast } from "react-hot-toast";
 
 // Simple slugify function
 const slugify = (text: string) => {
@@ -56,13 +57,13 @@ export default function NewProject() {
                 console.error("Supabase insert error:", error);
                 throw new Error(error.message || "Unknown database error");
             }
-            
+            toast.success("Proiect creat cu succes!");
             router.push("/admin/garage");
             router.refresh();
 
         } catch (err: any) {
             console.error(err);
-            alert("Error saving project: " + err.message);
+            toast.error("Eroare la salvare: " + err.message);
             setLoading(false);
         }
     };

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import BlockEditor, { Block } from "@/components/BlockEditor";
 import { submitArticle, updateArticle } from "@/app/admin/actions";
+import toast from "react-hot-toast";
 
 export default function EditAboutPage() {
     const router = useRouter();
@@ -58,7 +59,7 @@ export default function EditAboutPage() {
                 
                 if (result.error) throw new Error(result.error);
                 
-                alert("Page updated successfully!");
+                toast.success("Page updated successfully!");
                 router.push("/about");
                 router.refresh();
             } else {
@@ -72,13 +73,13 @@ export default function EditAboutPage() {
                 
                 if (result.error) throw new Error(result.error);
                 
-                alert("Page created successfully!");
+                toast.success("Page created successfully!");
                 router.push("/about");
                 router.refresh();
             }
         } catch (err: any) {
             console.error(err);
-            alert("Error saving page: " + err.message);
+            toast.error("Error saving page: " + err.message);
         } finally {
             setSaving(false);
         }

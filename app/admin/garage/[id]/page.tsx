@@ -6,6 +6,8 @@ import { createClient } from "@/utils/supabase/client";
 import { TrashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import BlockEditor, { Block } from "@/components/BlockEditor";
+import ConfirmModal from "@/components/ConfirmModal";
+import toast from "react-hot-toast";
 
 export default function EditProject() {
     const router = useRouter();
@@ -15,6 +17,7 @@ export default function EditProject() {
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
@@ -36,7 +39,7 @@ export default function EditProject() {
                 }
             } else {
                 console.error("Error loading project:", error);
-                alert("Project not found");
+                toast.error("Proiectul nu a fost găsit");
                 router.push("/admin/garage");
             }
             setLoading(false);
@@ -51,7 +54,9 @@ export default function EditProject() {
 
         try {
             if (!title.trim()) {
-                throw new Error("Title is required");
+                toast.error("Titlul este obligatoriu");
+                setSaving(false);
+                return;
             }
 
             const { error } = await supabase
@@ -67,20 +72,20 @@ export default function EditProject() {
                 throw new Error(error.message);
             }
             
+            toast.success("Proiect actualizat!");
             router.push("/admin/garage");
             router.refresh();
 
         } catch (err: any) {
             console.error(err);
-            alert("Error updating project: " + err.message);
+            toast.error("Eroare la salvare: " + err.message);
             setSaving(false);
         }
     };
 
-    const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
-
+    const executeDelete = async () => {
         setSaving(true);
+        setIsDeleteModalOpen(false);
         try {
             const { error } = await supabase
                 .from('projects')
@@ -89,14 +94,17 @@ export default function EditProject() {
 
             if (error) {
                 console.error("Supabase delete error:", error);
-                throw new Error(error.message);
+                toast.error("Eroare la ștergere: " + error.message);
+                setSaving(false);
+                return;
             }
             
+            toast.success("Proiect șters!");
             router.push("/admin/garage");
             router.refresh();
 
         } catch (err: any) {
-            alert("Error deleting project: " + err.message);
+            toast.error("Eroare la ștergere: " + err.message);
             setSaving(false);
         }
     };
@@ -114,7 +122,7 @@ export default function EditProject() {
                 <div className="flex gap-4">
                     <button
                         type="button"
-                        onClick={handleDelete}
+                        onClick={() => setIsDeleteModalOpen(true)}
                         disabled={saving}
                         className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
                     >
@@ -157,6 +165,15 @@ export default function EditProject() {
 
                 <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
             </div>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                title="Șterge Proiectul"
+                description="Ești sigur că vrei să ștergi acest proiect? Acțiunea este ireversibilă."
+                confirmText="ȘTERGE"
+                onConfirm={executeDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
         </div>
     );
 }

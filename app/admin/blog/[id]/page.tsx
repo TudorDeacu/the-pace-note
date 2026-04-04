@@ -7,6 +7,8 @@ import { TrashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import BlockEditor, { Block } from "@/components/BlockEditor";
 import { updateArticle } from "@/app/admin/actions";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function EditArticle() {
     const router = useRouter();
@@ -19,6 +21,7 @@ export default function EditArticle() {
     const [saving, setSaving] = useState(false);
     const [isPublished, setIsPublished] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     
     // Crucial: Memoize the Supabase Client to prevent recreation dropping active network requests and causing browser lock deadlocks
     const [supabase] = useState(() => createClient());
@@ -42,7 +45,7 @@ export default function EditArticle() {
                 }
             } else {
                 console.error("Error loading article:", error);
-                alert("Article not found");
+                toast.error("Article not found");
                 router.push("/admin/blog");
             }
             setLoading(false);
@@ -63,7 +66,7 @@ export default function EditArticle() {
             const { data } = supabase.storage.from('blogs').getPublicUrl(fileName);
             setImageUrl(data.publicUrl);
         } catch (err: any) {
-            alert("Error uploading thumbnail: " + err.message);
+            toast.error("Eroare la încărcarea imaginii: " + err.message);
         } finally {
             setUploadingImage(false);
         }
@@ -90,22 +93,23 @@ export default function EditArticle() {
             }
             
             setIsPublished(true);
+            toast.success("Articol salvat cu succes!");
             setTimeout(() => {
                 router.push("/admin/blog");
                 router.refresh();
             }, 1000);
             
+            
         } catch (err: any) {
             console.error(err);
-            alert("Error updating article: " + err.message);
+            toast.error("Eroare la salvarea articolului: " + err.message);
             setSaving(false);
         }
     };
 
-    const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this article? This action cannot be undone.")) return;
-
+    const executeDelete = async () => {
         setSaving(true);
+        setIsDeleteModalOpen(false);
         try {
             const { error } = await supabase
                 .from('articles')
@@ -114,14 +118,17 @@ export default function EditArticle() {
 
             if (error) {
                 console.error("Supabase delete error:", error);
-                throw new Error(error.message);
+                toast.error("Eroare la ștergere: " + error.message);
+                setSaving(false);
+                return;
             }
             
+            toast.success("Articol șters!");
             router.push("/admin/blog");
             router.refresh();
             
         } catch (err: any) {
-            alert("Error deleting article: " + err.message);
+            toast.error("Eroare neașteptată la ștergere: " + err.message);
             setSaving(false);
         }
     };
@@ -139,7 +146,7 @@ export default function EditArticle() {
                 <div className="flex gap-4">
                     <button
                         type="button"
-                        onClick={handleDelete}
+                        onClick={() => setIsDeleteModalOpen(true)}
                         disabled={saving}
                         className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
                     >
@@ -201,6 +208,15 @@ export default function EditArticle() {
 
                 <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
             </div>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                title="Șterge Articolul"
+                description="Atenție! Această acțiune este permanentă și articolul va fi ireversibil șters din baza de date."
+                confirmText="ȘTERGE DEFINITIV"
+                onConfirm={executeDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
         </div>
     );
 }

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { createClient } from "@/utils/supabase/client";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 export default function NewProduct() {
     const router = useRouter();
@@ -53,9 +53,10 @@ export default function NewProduct() {
 
         if (error) {
             console.error(error);
-            alert("Error saving product: " + error.message);
+            toast.error("Error saving product: " + error.message);
             setLoading(false);
         } else {
+            toast.success("Product created successfully!");
             router.push("/admin/shop");
         }
     };
@@ -74,7 +75,7 @@ export default function NewProduct() {
             .upload(filePath, file);
 
         if (uploadError) {
-            alert('Error uploading image: ' + uploadError.message);
+            toast.error('Error uploading image: ' + uploadError.message);
             setLoading(false);
             return;
         }

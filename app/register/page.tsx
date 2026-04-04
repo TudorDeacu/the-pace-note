@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import T from "@/components/T";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 export default function Register() {
     const { t } = useTranslationContext();
@@ -43,7 +44,7 @@ export default function Register() {
             setError(result.error);
             setLoading(false);
         } else {
-            alert(t("Înregistrare cu succes! Te rugăm să îți verifici emailul pentru a confirma contul."));
+            toast.success(t("Înregistrare cu succes! Te rugăm să îți verifici emailul pentru a confirma contul."));
             router.push("/login");
         }
     };

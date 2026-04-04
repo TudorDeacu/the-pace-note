@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import BlockEditor, { Block } from "@/components/BlockEditor";
 import { submitArticle } from "@/app/admin/actions";
+import toast from "react-hot-toast";
 
 // Simple slugify function
 const slugify = (text: string) => {
@@ -42,7 +43,7 @@ export default function NewArticle() {
             const { data } = supabase.storage.from('blogs').getPublicUrl(fileName);
             setImageUrl(data.publicUrl);
         } catch (err: any) {
-            alert("Error uploading thumbnail: " + err.message);
+            toast.error("Eroare la încărcarea imaginii: " + err.message);
         } finally {
             setUploadingImage(false);
         }
@@ -71,6 +72,7 @@ export default function NewArticle() {
                 throw new Error(result.error);
             }
             setIsPublished(true);
+            toast.success("Articol publicat cu succes!");
             setTimeout(() => {
                 router.push("/admin/blog");
                 router.refresh();
@@ -78,7 +80,7 @@ export default function NewArticle() {
             
         } catch (err: any) {
             console.error(err);
-            alert("Error saving article: " + err.message);
+            toast.error("Error saving article: " + err.message);
             setLoading(false); // Reset loading purely only on error
         }
     };
