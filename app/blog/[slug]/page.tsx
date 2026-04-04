@@ -41,6 +41,7 @@ interface Article {
     title: string;
     slug: string;
     content: { blocks: Block[], excerpt?: string };
+    excerpt?: string;
     published: boolean;
     created_at: string;
 }
@@ -85,6 +86,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     }
 
     const blocks = article.content.blocks || [];
+    const excerpt = article.excerpt || article.content?.excerpt || "";
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -97,6 +99,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 <article>
                     <header className="mb-12 text-center">
                         <h1 className="text-4xl font-bold uppercase tracking-tighter sm:text-5xl mb-6">{article.title}</h1>
+                        {excerpt && (
+                            <p className="text-xl md:text-2xl text-zinc-300 font-medium tracking-wide mb-6 leading-relaxed max-w-3xl mx-auto">
+                                {excerpt}
+                            </p>
+                        )}
                         <time className="text-zinc-500 text-sm">
                             {new Date(article.created_at).toLocaleDateString()}
                         </time>

@@ -129,14 +129,15 @@ export default function Navbar() {
                 <div className="fixed inset-0 z-50 bg-black/90" />
                 <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-black px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10 text-white">
                     <div className="flex items-center justify-between">
-                        <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-3">
+                        <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-4 focus:outline-none">
                             <span className="sr-only">The Pace Note</span>
                             <Image
                                 src={logo}
                                 alt="The Pace Note"
-                                className="h-8 w-auto"
+                                className="h-10 w-auto"
+                                priority
                             />
-                            <span className="font-bold text-lg uppercase tracking-tighter">The Pace Note</span>
+                            <span className="text-xl font-bold uppercase tracking-tighter text-white">The Pace Note</span>
                         </Link>
                         <button
                             type="button"

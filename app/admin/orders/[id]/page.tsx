@@ -120,7 +120,7 @@ export default function OrderDetails() {
                     </div>
 
                     {/* Order Items */}
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden overflow-x-auto">
                         <table className="min-w-full divide-y divide-zinc-800">
                             <thead className="bg-zinc-800/50">
                                 <tr>

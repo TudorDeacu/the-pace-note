@@ -8,12 +8,15 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import T from "@/components/T";
 import { useTranslationContext } from "@/context/TranslationContext";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export default function Register() {
     const { t } = useTranslationContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
@@ -62,8 +65,8 @@ export default function Register() {
     return (
         <div className="min-h-screen bg-black flex flex-col">
             <Navbar />
-            <main className="flex-1 flex flex-col items-center justify-center p-6 pt-24 pb-12">
-                <div className="w-full max-w-5xl bg-zinc-900/50 p-8 rounded-lg border border-zinc-800">
+            <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pt-24 pb-12">
+                <div className="w-full max-w-5xl bg-zinc-900/50 p-6 md:p-8 rounded-lg border border-zinc-800">
                     <h1 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest text-center"><T>Înregistrare</T></h1>
 
                     {error && (
@@ -122,24 +125,50 @@ export default function Register() {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Parolă</T></label>
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none transition-colors"
-                                        required
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none transition-colors pr-12"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white"
+                                        >
+                                            {showPassword ? (
+                                                <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                                            ) : (
+                                                <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Confirmă Parola</T></label>
-                                    <input
-                                        type="password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none transition-colors"
-                                        required
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none transition-colors pr-12"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white"
+                                        >
+                                            {showConfirmPassword ? (
+                                                <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                                            ) : (
+                                                <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <button

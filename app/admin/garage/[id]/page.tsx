@@ -155,7 +155,7 @@ export default function EditProject() {
                     </div>
                 </div>
 
-                <BlockEditor blocks={blocks} setBlocks={setBlocks} />
+                <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
             </div>
         </div>
     );

@@ -22,7 +22,7 @@ export default function NewProject() {
     const [excerpt, setExcerpt] = useState("");
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(false);
-    const supabase = createClient();
+    const [supabase] = useState(() => createClient());
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,18 +35,26 @@ export default function NewProject() {
 
             const slug = slugify(title) + '-' + Date.now().toString().slice(-4); // Ensure uniqueness
 
-            const { error } = await supabase
+            const insertPromise = supabase
                 .from('projects')
-                .insert({
+                .insert([{
                     title,
                     slug,
                     content: { blocks, excerpt }, // Store blocks and excerpt in JSONB
                     published: true // Default to published for now
-                });
+                }]);
+                
+            const timeoutPromise = new Promise<{ error: any }>((_, reject) => 
+                setTimeout(() => reject(new Error("Database connection timed out. Please check your network and try again.")), 15000)
+            );
+
+            // Race the network request against a timeout to prevent infinite UI hanging
+            const result = await Promise.race([insertPromise, timeoutPromise]);
+            const error = result?.error;
 
             if (error) {
                 console.error("Supabase insert error:", error);
-                throw new Error(error.message);
+                throw new Error(error.message || "Unknown database error");
             }
             
             router.push("/admin/garage");
@@ -97,7 +105,9 @@ export default function NewProject() {
                     </div>
                 </div>
 
-                <BlockEditor blocks={blocks} setBlocks={setBlocks} />
+                <div className="mt-8">
+                    <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
+                </div>
             </div>
         </div>
     );

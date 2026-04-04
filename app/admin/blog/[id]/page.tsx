@@ -6,16 +6,22 @@ import { createClient } from "@/utils/supabase/client";
 import { TrashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import BlockEditor, { Block } from "@/components/BlockEditor";
+import { updateArticle } from "@/app/admin/actions";
 
 export default function EditArticle() {
     const router = useRouter();
     const params = useParams();
     const [title, setTitle] = useState("");
     const [excerpt, setExcerpt] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const supabase = createClient();
+    const [isPublished, setIsPublished] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    
+    // Crucial: Memoize the Supabase Client to prevent recreation dropping active network requests and causing browser lock deadlocks
+    const [supabase] = useState(() => createClient());
 
     useEffect(() => {
         async function fetchArticle() {
@@ -28,11 +34,11 @@ export default function EditArticle() {
 
             if (data) {
                 setTitle(data.title);
+                if (data.content?.excerpt) setExcerpt(data.content.excerpt);
+                if (data.content?.image_url) setImageUrl(data.content.image_url);
+                
                 if (data.content?.blocks) {
                     setBlocks(data.content.blocks);
-                }
-                if (data.content?.excerpt) {
-                    setExcerpt(data.content.excerpt);
                 }
             } else {
                 console.error("Error loading article:", error);
@@ -45,6 +51,24 @@ export default function EditArticle() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params?.id]);
 
+    const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploadingImage(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `thumbnail-${Date.now()}.${fileExt}`;
+            const { error } = await supabase.storage.from('blogs').upload(fileName, file);
+            if (error) throw error;
+            const { data } = supabase.storage.from('blogs').getPublicUrl(fileName);
+            setImageUrl(data.publicUrl);
+        } catch (err: any) {
+            alert("Error uploading thumbnail: " + err.message);
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -53,22 +77,23 @@ export default function EditArticle() {
             if (!title.trim()) {
                 throw new Error("Title is required");
             }
+            if (!params?.id) throw new Error("Article ID is missing");
 
-            const { error } = await supabase
-                .from('articles')
-                .update({
-                    title,
-                    content: { blocks, excerpt },
-                })
-                .eq('id', params?.id);
+            const result = await updateArticle(params.id as string, {
+                title,
+                content: { blocks, excerpt, image_url: imageUrl },
+            });
 
-            if (error) {
-                console.error("Supabase update error:", error);
-                throw new Error(error.message);
+            if (result.error) {
+                console.error("Action error:", result.error);
+                throw new Error(result.error);
             }
             
-            router.push("/admin/blog");
-            router.refresh();
+            setIsPublished(true);
+            setTimeout(() => {
+                router.push("/admin/blog");
+                router.refresh();
+            }, 1000);
             
         } catch (err: any) {
             console.error(err);
@@ -122,10 +147,10 @@ export default function EditArticle() {
                     </button>
                     <button
                         onClick={handleSubmit}
-                        disabled={saving}
-                        className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
+                        disabled={saving || isPublished || uploadingImage}
+                        className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-all disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Update"}
+                        {isPublished ? "Published!" : saving ? "Saving..." : "Save Changes"}
                     </button>
                 </div>
             </div>
@@ -144,6 +169,25 @@ export default function EditArticle() {
                         />
                     </div>
                     <div>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Thumbnail Image</label>
+                        <div className="flex gap-4 items-center">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleThumbnailUpload}
+                                disabled={uploadingImage}
+                                className="block w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 transition-colors"
+                            />
+                            {uploadingImage && <span className="text-zinc-500 text-sm">Uploading...</span>}
+                        </div>
+                        {imageUrl && (
+                            <div className="mt-4">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={imageUrl} alt="Thumbnail preview" className="w-full max-w-sm rounded-lg object-cover" />
+                            </div>
+                        )}
+                    </div>
+                    <div>
                         <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Excerpt</label>
                         <textarea
                             value={excerpt}
@@ -155,7 +199,7 @@ export default function EditArticle() {
                     </div>
                 </div>
 
-                <BlockEditor blocks={blocks} setBlocks={setBlocks} />
+                <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
             </div>
         </div>
     );

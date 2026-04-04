@@ -36,8 +36,8 @@ export default async function Home() {
                             <div className="absolute inset-0 bg-cover bg-center -z-20 opacity-60 mix-blend-overlay grayscale" style={{ backgroundImage: `url('${heroMedia}')` }}></div>
                         )}
                     </div>
-                    <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
-                        <h1 className="text-4xl font-black tracking-tighter text-white sm:text-6xl uppercase italic transform -skew-x-12">
+                    <div className="mx-auto max-w-2xl py-24 sm:py-48 lg:py-56 text-center">
+                        <h1 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter text-white uppercase italic transform -skew-x-12">
                             The Pace Note
                         </h1>
                         <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -55,7 +55,7 @@ export default async function Home() {
                 </div>
 
                 {/* Viziune Section */}
-                <div className="bg-black py-24 sm:py-32 border-y border-zinc-900">
+                <div className="bg-black py-16 sm:py-24 md:py-32 border-y border-zinc-900">
                     <div className="mx-auto max-w-7xl px-6 lg:px-8">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div>
@@ -84,8 +84,8 @@ export default async function Home() {
                 </div>
 
                 {/* Orange Tainted Dreams Banner */}
-                <div className="bg-black w-full py-12 flex items-center justify-center border-b border-zinc-900">
-                    <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter text-center">
+                <div className="bg-black w-full py-8 md:py-12 px-4 flex items-center justify-center border-b border-zinc-900">
+                    <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter text-center">
                         Orange Tainted <span className="text-transparent bg-clip-text bg-[#E9482F]">Dreams</span>
                     </h2>
                 </div>
@@ -99,9 +99,9 @@ export default async function Home() {
                             <div className="absolute inset-0 bg-cover bg-center grayscale" style={{ backgroundImage: `url('${splitMedia}')` }}></div>
                         )}
                     </div>
-                    <div className="bg-[#E9482F] p-12 lg:p-24 flex flex-col justify-center">
-                        <h2 className="text-white text-4xl font-bold uppercase mb-8 whitespace-pre-line"><T>Povestea Noastră</T></h2>
-                        <p className="text-white/90 text-lg leading-relaxed mb-8 font-medium">
+                    <div className="bg-[#E9482F] p-8 md:p-12 lg:p-24 flex flex-col justify-center">
+                        <h2 className="text-white text-3xl md:text-4xl font-bold uppercase mb-8 whitespace-pre-line"><T>Povestea Noastră</T></h2>
+                        <p className="text-white/90 text-base md:text-lg leading-relaxed mb-8 font-medium">
                             <T>The Pace Note urmărește motorsportul românesc dintr-o poziție pe care puțini o văd și și mai puțini o înțeleg. Nu explicăm, nu traducem, nu facem spectacol. Observăm. Selectăm. Notăm.</T>
                         </p>
                         <Link href="/about" className="inline-block bg-white text-red-600 px-8 py-3 font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all text-center w-fit">

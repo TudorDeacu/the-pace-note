@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import BlockEditor, { Block } from "@/components/BlockEditor";
+import { submitArticle, updateArticle } from "@/app/admin/actions";
 
 export default function EditAboutPage() {
     const router = useRouter();
@@ -11,7 +12,9 @@ export default function EditAboutPage() {
     const [articleId, setArticleId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const supabase = createClient();
+    
+    // Crucial: Memoize the Supabase Client to prevent recreation dropping active network requests and causing browser lock deadlocks
+    const [supabase] = useState(() => createClient());
 
     useEffect(() => {
         async function fetchArticle() {
@@ -51,30 +54,23 @@ export default function EditAboutPage() {
         try {
             if (articleId) {
                 // Update existing
-                const { error } = await supabase
-                    .from('articles')
-                    .update({
-                        content: { blocks },
-                    })
-                    .eq('id', articleId);
+                const result = await updateArticle(articleId, { content: { blocks } });
                 
-                if (error) throw new Error(error.message);
+                if (result.error) throw new Error(result.error);
                 
                 alert("Page updated successfully!");
                 router.push("/about");
                 router.refresh();
             } else {
                 // Create new
-                const { error } = await supabase
-                    .from('articles')
-                    .insert({
-                        title: 'Despre Noi',
-                        slug: 'page-about-us',
-                        content: { blocks },
-                        published: true
-                    });
+                const result = await submitArticle({
+                    title: 'Despre Noi',
+                    slug: 'page-about-us',
+                    content: { blocks },
+                    published: true
+                });
                 
-                if (error) throw new Error(error.message);
+                if (result.error) throw new Error(result.error);
                 
                 alert("Page created successfully!");
                 router.push("/about");
@@ -113,7 +109,7 @@ export default function EditAboutPage() {
                     </p>
                 </div>
 
-                <BlockEditor blocks={blocks} setBlocks={setBlocks} />
+                <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
             </div>
         </div>
     );

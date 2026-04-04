@@ -98,7 +98,7 @@ export default async function Blog() {
                         ) : (
                             articles.map((article) => {
                                 // Extract thumbnail from explicit column or perfectly sniff the first image block inside content
-                                const thumbnail = article.image_url || article.imageUrl || 
+                                const thumbnail = article.content?.image_url || article.image_url || article.imageUrl || 
                                     (article.content?.blocks?.find((b: any) => (b.type === 'image' || b.type === 'image-text') && b.imageUrl)?.imageUrl);
 
                                 return (
@@ -129,7 +129,7 @@ export default async function Blog() {
                                                 </Link>
                                             </h3>
                                             <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-400">
-                                                {article.excerpt || <T>Citește Mai Mult</T>}
+                                                {article.excerpt || article.content?.excerpt || <T>Citește Mai Mult</T>}
                                             </p>
                                         </div>
                                     </div>
