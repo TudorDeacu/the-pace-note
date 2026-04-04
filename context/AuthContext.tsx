@@ -15,8 +15,6 @@ interface AuthContextType {
     signup: (email: string, password: string, firstName: string, lastName: string, username: string) => Promise<{ error: string | null }>;
     logout: () => Promise<void>;
     signInWithGoogle: () => Promise<{ error: string | null }>;
-    signInWithApple: () => Promise<{ error: string | null }>;
-    signInWithFacebook: () => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [role, setRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const supabase = createClient();
+    const [supabase] = useState(() => createClient());
 
     const fetchRole = async (userId: string) => {
         const { data, error } = await supabase
@@ -127,28 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: null };
     };
 
-    const signInWithApple = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'apple',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`
-            }
-        });
-        if (error) return { error: error.message };
-        return { error: null };
-    };
-
-    const signInWithFacebook = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'facebook',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`
-            }
-        });
-        if (error) return { error: error.message };
-        return { error: null };
-    };
-
     return (
         <AuthContext.Provider value={{
             user,
@@ -159,9 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             login,
             signup,
             logout,
-            signInWithGoogle,
-            signInWithApple,
-            signInWithFacebook
+            signInWithGoogle
         }}>
             {children}
         </AuthContext.Provider>

@@ -29,12 +29,7 @@ export default function Navbar() {
         { name: "Acasă", href: "/" },
         { name: "Blog", href: "/blog" },
         { name: "Garaj", href: "/garage" },
-        // { name: "Magazin", href: "/shop" },
     ];
-
-    if (isAuthenticated) {
-        navigation.push({ name: "Cont", href: "/account" });
-    }
 
     return (
         <header className="bg-black text-white selection:bg-red-600 fixed w-full z-50 border-b border-zinc-900/50 backdrop-blur-md bg-black/80">
@@ -80,7 +75,16 @@ export default function Navbar() {
 
                     {/* Auth Links */}
                     {isAuthenticated ? (
-                        <>
+                        <div className="flex items-center gap-6">
+                            <Link
+                                href="/account"
+                                className={`text-sm font-semibold leading-6 transition-colors uppercase tracking-widest ${pathname === "/account"
+                                    ? "text-orange-500"
+                                    : "text-zinc-300 hover:text-white hover:text-red-500"
+                                    }`}
+                            >
+                                <T>Cont</T>
+                            </Link>
                             {isAdmin && (
                                 <Link
                                     href="/admin"
@@ -92,7 +96,7 @@ export default function Navbar() {
                                     <T>Admin</T>
                                 </Link>
                             )}
-                        </>
+                        </div>
                     ) : (
                         <Link
                             href="/login"
@@ -168,6 +172,16 @@ export default function Navbar() {
                                 {/* Mobile Auth Links */}
                                 {isAuthenticated ? (
                                     <>
+                                        <Link
+                                            href="/account"
+                                            className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 transition-colors uppercase tracking-widest hover:bg-zinc-900 ${pathname === "/account"
+                                                ? "text-orange-500"
+                                                : "text-zinc-100 hover:text-red-500"
+                                                }`}
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            <T>Cont</T>
+                                        </Link>
                                         {isAdmin && (
                                             <Link
                                                 href="/admin"
