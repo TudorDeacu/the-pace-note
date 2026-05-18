@@ -3,6 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { decryptUrlParam } from "@/utils/encryption";
+import T from "@/components/T";
 
 interface Block {
     id: string;
@@ -25,6 +27,7 @@ interface Project {
 
 export default async function GarageProject({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+    const realSlug = decryptUrlParam(slug);
     const supabase = await createClient();
 
     let project: Project | null = null;
@@ -32,7 +35,7 @@ export default async function GarageProject({ params }: { params: Promise<{ slug
     const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .eq('slug', slug)
+        .eq('slug', realSlug)
         .single();
 
     if (data) {
@@ -46,8 +49,8 @@ export default async function GarageProject({ params }: { params: Promise<{ slug
             <div className="min-h-screen bg-black">
                 <Navbar />
                 <main className="pt-32 px-6 max-w-4xl mx-auto min-h-[60vh] flex flex-col items-center justify-center text-center">
-                    <h1 className="text-2xl font-bold text-white mb-4">Project Not Found</h1>
-                    <Link href="/garage" className="text-red-500 hover:text-red-400">Back to Garage</Link>
+                    <h1 className="text-2xl font-bold text-white mb-4"><T>Proiectul nu a fost găsit</T></h1>
+                    <Link href="/garage" className="text-red-500 hover:text-red-400"><T>Înapoi la Garaj</T></Link>
                 </main>
                 <Footer />
             </div>
@@ -59,7 +62,7 @@ export default async function GarageProject({ params }: { params: Promise<{ slug
             <Navbar />
             <main className="pt-32 pb-20 px-6 lg:px-8 max-w-4xl mx-auto">
                 <Link href="/garage" className="inline-flex items-center text-zinc-500 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Garage
+                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Garaj</T>
                 </Link>
 
                 <article className="prose prose-invert max-w-none">

@@ -29,6 +29,7 @@ export default function Navbar() {
         { name: "Acasă", href: "/" },
         { name: "Blog", href: "/blog" },
         { name: "Garaj", href: "/garage" },
+        { name: "Galerie", href: "/gallery" },
     ];
 
     return (

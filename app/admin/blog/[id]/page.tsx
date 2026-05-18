@@ -9,6 +9,8 @@ import BlockEditor, { Block } from "@/components/BlockEditor";
 import { updateArticle } from "@/app/admin/actions";
 import toast from "react-hot-toast";
 import ConfirmModal from "@/components/ConfirmModal";
+import { decryptUrlParam } from "@/utils/encryption";
+import T from "@/components/T";
 
 export default function EditArticle() {
     const router = useRouter();
@@ -29,10 +31,11 @@ export default function EditArticle() {
     useEffect(() => {
         async function fetchArticle() {
             if (!params?.id) return;
+            const realId = decryptUrlParam(params.id as string);
             const { data, error } = await supabase
                 .from('articles')
                 .select('*')
-                .eq('id', params.id)
+                .eq('id', realId)
                 .single();
 
             if (data) {
@@ -81,8 +84,9 @@ export default function EditArticle() {
                 throw new Error("Title is required");
             }
             if (!params?.id) throw new Error("Article ID is missing");
+            const realId = decryptUrlParam(params.id as string);
 
-            const result = await updateArticle(params.id as string, {
+            const result = await updateArticle(realId, {
                 title,
                 content: { blocks, excerpt, image_url: imageUrl },
             });
@@ -111,10 +115,11 @@ export default function EditArticle() {
         setSaving(true);
         setIsDeleteModalOpen(false);
         try {
+            const realId = decryptUrlParam(params?.id as string);
             const { error } = await supabase
                 .from('articles')
                 .delete()
-                .eq('id', params?.id);
+                .eq('id', realId);
 
             if (error) {
                 console.error("Supabase delete error:", error);
@@ -133,16 +138,16 @@ export default function EditArticle() {
         }
     };
 
-    if (loading) return <div className="text-white p-8">Loading...</div>;
+    if (loading) return <div className="text-white p-8"><T>Se încarcă...</T></div>;
 
     return (
         <div className="max-w-4xl mx-auto pb-20">
             <Link href="/admin/blog" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Blog
+                <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Blog</T>
             </Link>
 
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit Article</h1>
+                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Editează Articolul</T></h1>
                 <div className="flex gap-4">
                     <button
                         type="button"
@@ -150,14 +155,14 @@ export default function EditArticle() {
                         disabled={saving}
                         className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
                     >
-                        <TrashIcon className="w-5 h-5" /> Delete
+                        <TrashIcon className="w-5 h-5" /> <T>Șterge</T>
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={saving || isPublished || uploadingImage}
                         className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-all disabled:opacity-50"
                     >
-                        {isPublished ? "Published!" : saving ? "Saving..." : "Save Changes"}
+                        {isPublished ? <T>Publicat!</T> : saving ? <T>Se salvează...</T> : <T>Salvează Modificările</T>}
                     </button>
                 </div>
             </div>
@@ -166,7 +171,7 @@ export default function EditArticle() {
                 {/* Meta Inputs */}
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Article Title</label>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Titlu Articol</T></label>
                         <input
                             type="text"
                             value={title}
@@ -176,7 +181,7 @@ export default function EditArticle() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Thumbnail Image</label>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Imagine Miniatură</T></label>
                         <div className="flex gap-4 items-center">
                             <input
                                 type="file"
@@ -185,7 +190,7 @@ export default function EditArticle() {
                                 disabled={uploadingImage}
                                 className="block w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 transition-colors"
                             />
-                            {uploadingImage && <span className="text-zinc-500 text-sm">Uploading...</span>}
+                            {uploadingImage && <span className="text-zinc-500 text-sm"><T>Se încarcă...</T></span>}
                         </div>
                         {imageUrl && (
                             <div className="mt-4">
@@ -195,7 +200,7 @@ export default function EditArticle() {
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Excerpt</label>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Rezumat</T></label>
                         <textarea
                             value={excerpt}
                             onChange={(e) => setExcerpt(e.target.value)}

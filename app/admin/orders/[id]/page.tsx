@@ -6,6 +6,8 @@ import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
+import { decryptUrlParam } from "@/utils/encryption";
+import T from "@/components/T";
 
 interface OrderItem {
     id: string;
@@ -39,12 +41,14 @@ export default function OrderDetails() {
     useEffect(() => {
         async function fetchOrder() {
             if (!params?.id) return;
+            
+            const realId = decryptUrlParam(params.id as string);
 
             // Fetch order
             const { data: orderData, error: orderError } = await supabase
                 .from('orders')
                 .select('*')
-                .eq('id', params.id)
+                .eq('id', realId)
                 .single();
 
             if (orderError) {
@@ -58,7 +62,7 @@ export default function OrderDetails() {
             const { data: itemsData, error: itemsError } = await supabase
                 .from('order_items')
                 .select('*')
-                .eq('order_id', params.id);
+                .eq('order_id', realId);
 
             if (itemsData) {
                 setItems(itemsData);
@@ -89,13 +93,13 @@ export default function OrderDetails() {
         setUpdating(false);
     };
 
-    if (loading) return <div className="text-white">Loading order...</div>;
-    if (!order) return <div className="text-white">Order not found</div>;
+    if (loading) return <div className="text-white"><T>Se încarcă comanda...</T></div>;
+    if (!order) return <div className="text-white"><T>Comanda nu a fost găsită</T></div>;
 
     return (
         <div className="pb-20">
             <Link href="/admin/orders" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Orders
+                <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Comenzi</T>
             </Link>
 
             <div className="flex flex-col lg:flex-row gap-8">
@@ -104,22 +108,22 @@ export default function OrderDetails() {
                     {/* Header */}
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Order #{order.id.slice(0, 8)}</h1>
-                            <p className="text-zinc-500 mt-1">Placed on {new Date(order.created_at).toLocaleString()}</p>
+                            <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Comanda #</T>{order.id.slice(0, 8)}</h1>
+                            <p className="text-zinc-500 mt-1"><T>Plasată la</T> {new Date(order.created_at).toLocaleString()}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-zinc-400 text-sm uppercase font-bold tracking-wider mr-2">Status:</span>
+                            <span className="text-zinc-400 text-sm uppercase font-bold tracking-wider mr-2"><T>Status:</T></span>
                             <select
                                 value={order.status}
                                 onChange={(e) => updateStatus(e.target.value)}
                                 disabled={updating}
                                 className="bg-zinc-900 border border-zinc-800 text-white text-sm rounded p-2 outline-none focus:border-red-600 uppercase font-bold tracking-wider"
                             >
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="pending">În așteptare</option>
+                                <option value="processing">În procesare</option>
+                                <option value="shipped">Expediat</option>
+                                <option value="delivered">Livrat</option>
+                                <option value="cancelled">Anulat</option>
                             </select>
                         </div>
                     </div>
@@ -129,10 +133,10 @@ export default function OrderDetails() {
                         <table className="min-w-full divide-y divide-zinc-800">
                             <thead className="bg-zinc-800/50">
                                 <tr>
-                                    <th className="py-3 px-6 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">Product</th>
-                                    <th className="py-3 px-6 text-right text-xs font-medium text-zinc-400 uppercase tracking-wider">Price</th>
-                                    <th className="py-3 px-6 text-right text-xs font-medium text-zinc-400 uppercase tracking-wider">Quantity</th>
-                                    <th className="py-3 px-6 text-right text-xs font-medium text-zinc-400 uppercase tracking-wider">Total</th>
+                                    <th className="py-3 px-6 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider"><T>Produs</T></th>
+                                    <th className="py-3 px-6 text-right text-xs font-medium text-zinc-400 uppercase tracking-wider"><T>Preț</T></th>
+                                    <th className="py-3 px-6 text-right text-xs font-medium text-zinc-400 uppercase tracking-wider"><T>Cantitate</T></th>
+                                    <th className="py-3 px-6 text-right text-xs font-medium text-zinc-400 uppercase tracking-wider"><T>Total</T></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-zinc-800 text-zinc-300 text-sm">
@@ -155,7 +159,7 @@ export default function OrderDetails() {
                                     </tr>
                                 ))}
                                 <tr className="bg-zinc-800/30 font-bold">
-                                    <td colSpan={3} className="py-4 px-6 text-right text-white uppercase tracking-wider">Total Amount</td>
+                                    <td colSpan={3} className="py-4 px-6 text-right text-white uppercase tracking-wider"><T>Suma Totală</T></td>
                                     <td className="py-4 px-6 text-right text-white">
                                         {order.total_amount} {order.currency || 'RON'}
                                     </td>
@@ -169,14 +173,14 @@ export default function OrderDetails() {
                 <div className="w-full lg:w-80 space-y-6">
                     {/* Customer Info */}
                     <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
-                        <h3 className="text-white font-bold uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Customer</h3>
+                        <h3 className="text-white font-bold uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2"><T>Client</T></h3>
                         <div className="space-y-3 text-sm">
                             <div>
-                                <p className="text-zinc-500 text-xs uppercase tracking-wide">Email</p>
+                                <p className="text-zinc-500 text-xs uppercase tracking-wide"><T>Email</T></p>
                                 <p className="text-zinc-300 break-all">{order.customer_email || "N/A"}</p>
                             </div>
                             <div>
-                                <p className="text-zinc-500 text-xs uppercase tracking-wide">Phone</p>
+                                <p className="text-zinc-500 text-xs uppercase tracking-wide"><T>Telefon</T></p>
                                 <p className="text-zinc-300">{order.customer_phone || "N/A"}</p>
                             </div>
                         </div>
@@ -184,7 +188,7 @@ export default function OrderDetails() {
 
                     {/* Shipping Address */}
                     <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
-                        <h3 className="text-white font-bold uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">Shipping Address</h3>
+                        <h3 className="text-white font-bold uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2"><T>Adresă de livrare</T></h3>
                         <div className="text-sm text-zinc-300 leading-relaxed">
                             {order.shipping_address ? (
                                 <>
@@ -194,7 +198,7 @@ export default function OrderDetails() {
                                     <p>{order.shipping_address.country}</p>
                                 </>
                             ) : (
-                                <p className="text-zinc-500 italic">No address provided</p>
+                                <p className="text-zinc-500 italic"><T>Nu a fost furnizată o adresă</T></p>
                             )}
                         </div>
                     </div>

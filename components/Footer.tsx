@@ -18,7 +18,7 @@ export default function Footer() {
                             <Link href="/about" className="hover:text-red-600 transition-colors uppercase tracking-widest"><T>Despre Noi</T></Link>
                             <Link href="/newsletter" className="hover:text-red-600 transition-colors uppercase tracking-widest"><T>Newsletter</T></Link>
                             <Link href="/contact" className="hover:text-red-600 transition-colors uppercase tracking-widest"><T>Contact</T></Link>
-                            <Link href="/terms" className="hover:text-red-600 transition-colors uppercase tracking-widest"><T>Terms & Conditions</T></Link>
+                            <Link href="/terms" className="hover:text-red-600 transition-colors uppercase tracking-widest"><T>Termene si conditii</T></Link>
                         </div>
                         <div className="flex flex-wrap gap-4 md:gap-6 text-sm text-zinc-400 justify-center max-w-full mt-2">
                             {/* Social placeholders or real links if provided */}

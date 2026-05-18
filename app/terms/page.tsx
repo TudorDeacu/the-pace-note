@@ -10,7 +10,7 @@ export default function Terms() {
 
             <main className="max-w-4xl mx-auto px-6 py-24 sm:py-32 lg:px-8 text-zinc-300">
                 <div className="mx-auto max-w-2xl text-center mb-16">
-                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase tracking-widest"><T>Termeni și Condiții</T></h2>
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase tracking-widest"><T>Termene si conditii</T></h2>
                     <p className="mt-4 text-sm leading-8 text-zinc-500 uppercase tracking-widest">
                         <T>Ultima actualizare:</T> {new Date().toLocaleDateString('ro-RO', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>

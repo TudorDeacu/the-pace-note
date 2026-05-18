@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import BlockEditor, { Block } from "@/components/BlockEditor";
 import { submitArticle, updateArticle } from "@/app/admin/actions";
 import toast from "react-hot-toast";
+import T from "@/components/T";
 
 export default function EditAboutPage() {
     const router = useRouter();
@@ -85,19 +86,19 @@ export default function EditAboutPage() {
         }
     };
 
-    if (loading) return <div className="text-white p-8">Loading...</div>;
+    if (loading) return <div className="text-white p-8"><T>Se încarcă...</T></div>;
 
     return (
         <div className="max-w-4xl mx-auto pb-20">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit "About Us" Page</h1>
+                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Editează Pagina Despre Noi</T></h1>
                 <div className="flex gap-4">
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
                         className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Publish Page"}
+                        {saving ? <T>Se salvează...</T> : <T>Publică Pagina</T>}
                     </button>
                 </div>
             </div>
@@ -105,8 +106,7 @@ export default function EditAboutPage() {
             <div className="space-y-6">
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg mb-8">
                     <p className="text-zinc-400 text-sm">
-                        This content will replace the static text on the public "Despre Noi" page once you click Publish Page.
-                        Any added blocks will be instantly visible on the live site!
+                        <T>Acest conținut va înlocui textul static de pe pagina publică "Despre Noi" odată ce faceți clic pe Publică Pagina. Orice blocuri adăugate vor fi vizibile instant pe site-ul live!</T>
                     </p>
                 </div>
 

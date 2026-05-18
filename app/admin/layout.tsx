@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import T from "@/components/T";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isAdmin, loading, logout } = useAuth();
@@ -41,13 +42,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!isAdmin) {
         return (
             <div className="min-h-screen bg-black text-white flex items-center justify-center flex-col gap-4">
-                <p className="text-red-500 font-bold text-xl uppercase tracking-widest">Access Denied</p>
-                <p className="text-zinc-400">You do not have permission to view this area.</p>
+                <p className="text-red-500 font-bold text-xl uppercase tracking-widest"><T>Acces interzis</T></p>
+                <p className="text-zinc-400"><T>Nu aveți permisiunea de a accesa această pagină.</T></p>
                 <button
                     onClick={() => router.push("/admin/login")}
                     className="mt-4 bg-zinc-800 px-4 py-2 rounded hover:bg-zinc-700 transition-colors"
                 >
-                    Back to Login
+                    <T>Înapoi la Autentificare</T>
                 </button>
             </div>
         );
@@ -89,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 className={`block px-4 py-2 rounded transition-colors ${pathname === "/admin" ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                     }`}
                             >
-                                Dashboard
+                                <T>Panou Control</T>
                             </Link>
                             <Link
                                 href="/admin/blog"
@@ -97,7 +98,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/blog") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                     }`}
                             >
-                                Blog
+                                <T>Blog</T>
+                            </Link>
+                            <Link
+                                href="/admin/galleries"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/galleries") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                    }`}
+                            >
+                                <T>Galerii</T>
                             </Link>
                             <Link
                                 href="/admin/garage"
@@ -105,7 +114,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/garage") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                     }`}
                             >
-                                Garage
+                                <T>Garaj</T>
                             </Link>
                             <Link
                                 href="/admin/about"
@@ -113,7 +122,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/about") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                     }`}
                             >
-                                About Us
+                                <T>Despre Noi</T>
                             </Link>
                             <Link
                                 href="/admin/home"
@@ -121,7 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/home") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                     }`}
                             >
-                                Home Page
+                                <T>Pagina Principală</T>
                             </Link>
                         </nav>
                         <div className="p-4 border-t border-zinc-900 space-y-3 shrink-0">
@@ -129,13 +138,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 href="/"
                                 className="block w-full px-4 py-2 text-center rounded transition-colors text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800 text-sm font-semibold uppercase tracking-widest"
                             >
-                                Exit to Site
+                                <T>Ieșire pe site</T>
                             </Link>
                             <button
                                 onClick={logout}
                                 className="block w-full px-4 py-2 text-center rounded transition-colors text-red-500 hover:text-white hover:bg-red-600 border border-red-900/30 hover:border-red-600 bg-red-950/20 text-sm font-semibold uppercase tracking-widest"
                             >
-                                Logout
+                                <T>Deconectare</T>
                             </button>
                         </div>
                     </DialogPanel>
@@ -154,14 +163,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             className={`block px-4 py-2 rounded transition-colors ${pathname === "/admin" ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                 }`}
                         >
-                            Dashboard
+                            <T>Panou Control</T>
                         </Link>
                         <Link
                             href="/admin/blog"
                             className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/blog") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                 }`}
                         >
-                            Blog
+                            <T>Blog</T>
+                        </Link>
+                        <Link
+                            href="/admin/galleries"
+                            className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/galleries") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                                }`}
+                        >
+                            <T>Galerii</T>
                         </Link>
                         {/* 
                         <Link
@@ -177,21 +193,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/garage") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                 }`}
                         >
-                            Garage
+                            <T>Garaj</T>
                         </Link>
                         <Link
                             href="/admin/about"
                             className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/about") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                 }`}
                         >
-                            About Us
+                            <T>Despre Noi</T>
                         </Link>
                         <Link
                             href="/admin/home"
                             className={`block px-4 py-2 rounded transition-colors ${pathname.startsWith("/admin/home") ? "bg-red-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                                 }`}
                         >
-                            Home Page
+                            <T>Pagina Principală</T>
                         </Link>
                     </nav>
                 </div>
@@ -202,13 +218,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         href="/"
                         className="block w-full px-4 py-2 text-center rounded transition-colors text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800 text-sm font-semibold uppercase tracking-widest"
                     >
-                        Exit to Site
+                        <T>Ieșire pe site</T>
                     </Link>
                     <button
                         onClick={logout}
                         className="block w-full px-4 py-2 text-center rounded transition-colors text-red-500 hover:text-white hover:bg-red-600 border border-red-900/30 hover:border-red-600 bg-red-950/20 text-sm font-semibold uppercase tracking-widest"
                     >
-                        Logout
+                        <T>Deconectare</T>
                     </button>
                 </div>
             </aside>

@@ -78,7 +78,7 @@ export default async function About() {
                         ) : (
                             <div className="space-y-12">
                                 <h1 className="text-4xl font-bold uppercase tracking-tighter sm:text-5xl mb-12"><T>Despre Noi</T></h1>
-                                <p className="text-zinc-500 italic">No content available yet.</p>
+                                <p className="text-zinc-500 italic"><T>Niciun conținut disponibil încă.</T></p>
                             </div>
                         )}
                     </div>

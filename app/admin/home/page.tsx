@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
+import T from "@/components/T";
 
 export const DEFAULT_HERO = "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v1/object/public/other/ultrace_gatti.jpeg";
 export const DEFAULT_VISION = "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v1/object/public/other/visiontpn.jpeg";
@@ -112,7 +113,7 @@ export default function EditHomePageMedia() {
     };
 
     const renderMediaPreview = (url: string) => {
-        if (!url) return <div className="text-zinc-500 italic p-4 text-sm text-center">No media selected</div>;
+        if (!url) return <div className="text-zinc-500 italic p-4 text-sm text-center"><T>Niciun fișier media selectat</T></div>;
         if (isVideo(url)) {
             return (
                 <video autoPlay loop muted playsInline className="w-full h-48 object-cover rounded bg-black">
@@ -126,7 +127,7 @@ export default function EditHomePageMedia() {
         );
     };
 
-    if (loading) return <div className="text-white p-8">Loading...</div>;
+    if (loading) return <div className="text-white p-8"><T>Se încarcă...</T></div>;
 
     const sections: { key: keyof typeof media, title: string, desc: string }[] = [
         { key: 'heroMedia', title: 'Top Hero Background', desc: 'The main background behind the large "The Pace Note" title on the very top of the page.' },
@@ -137,14 +138,14 @@ export default function EditHomePageMedia() {
     return (
         <div className="max-w-4xl mx-auto pb-20">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit Home Page Media</h1>
+                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Modificare Media Pagină Principală</T></h1>
                 <div className="flex gap-4">
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
                         className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Publish Page"}
+                        {saving ? <T>Se salvează...</T> : <T>Publică Pagina</T>}
                     </button>
                 </div>
             </div>
@@ -152,9 +153,7 @@ export default function EditHomePageMedia() {
             <div className="space-y-6">
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg mb-8">
                     <p className="text-zinc-400 text-sm">
-                        Upload custom images or videos for the main homepage sections.
-                        If you upload an MP4 or WebM, it will automatically loop in the background!
-                        Ensure your files are compressed correctly so the page loads fast for your visitors.
+                        <T>Încarcă imagini sau video-uri personalizate pentru secțiunile principale ale paginii de start. Dacă încarci un format MP4 sau WebM, acesta va rula în buclă pe fundal! Asigură-te că fișierele sunt comprimate corect pentru a menține o viteză bună de încărcare a site-ului.</T>
                     </p>
                 </div>
 
@@ -173,7 +172,7 @@ export default function EditHomePageMedia() {
                                 {renderMediaPreview(media[section.key])}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                     <label className="cursor-pointer bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-bold uppercase tracking-wide transition-colors">
-                                        Upload New File
+                                        <T>Încarcă un Fișier Nou</T>
                                         <input type="file" accept="image/*,video/mp4,video/webm" className="hidden" onChange={(e) => handleFileUpload(e, section.key)} />
                                     </label>
                                 </div>
@@ -181,7 +180,7 @@ export default function EditHomePageMedia() {
 
                             {/* Manual URL Input */}
                             <div className="space-y-3">
-                                <label className="block text-xs font-bold uppercase tracking-widest text-zinc-500">Or Paste URL</label>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-zinc-500"><T>Sau Lipsește URL-ul</T></label>
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-zinc-800 rounded">
                                         <PhotoIcon className="w-5 h-5 text-zinc-400" />
@@ -199,11 +198,11 @@ export default function EditHomePageMedia() {
                                         onClick={() => setMedia(prev => ({ ...prev, [section.key]: "" }))}
                                         className="hover:text-red-500"
                                     >
-                                        Clear
+                                        <T>Șterge</T>
                                     </button>
                                     <span>•</span>
                                     <label className="cursor-pointer hover:text-white transition-colors">
-                                        Browse Computer...
+                                        <T>Răsfoiește Computerul...</T>
                                         <input type="file" accept="image/*,video/mp4,video/webm" className="hidden" onChange={(e) => handleFileUpload(e, section.key)} />
                                     </label>
                                 </div>

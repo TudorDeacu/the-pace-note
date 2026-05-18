@@ -3,12 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
-import stickerPack from "../images/sticker_pack.png";
-import tshirtBlack from "../images/tshirt_black.png";
-import hoodiePaddock from "../images/hoodie_paddock.png";
-import blogTrackDay from "../images/blog_track_day.png";
-import blogSimRacing from "../images/blog_sim_racing.png";
-import blogMaintenance from "../images/blog_maintenance.png";
+
 
 export default function SeedPage() {
     const [loading, setLoading] = useState(false);
@@ -18,6 +13,7 @@ export default function SeedPage() {
     const addLog = (msg: string) => setLogs(prev => [...prev, msg]);
 
     const uploadImage = async (imageModule: any, name: string) => {
+        if (!imageModule) return null;
         try {
             const response = await fetch(imageModule.src);
             const blob = await response.blob();
@@ -50,7 +46,7 @@ export default function SeedPage() {
                 description: "High quality vinyl stickers. Weatherproof and durable. Perfect for your car, helmet, or laptop.",
                 stock: 50,
                 dimensions: "Various sizes (approx 5-10cm)",
-                image: stickerPack,
+                image: undefined,
                 key: "sticker_pack"
             },
             {
@@ -59,7 +55,7 @@ export default function SeedPage() {
                 description: "Premium cotton blend t-shirt with minimalist TPN branding. Athletic fit.",
                 stock: 25,
                 sizes: ["S", "M", "L", "XL", "XXL"],
-                image: tshirtBlack,
+                image: undefined,
                 key: "tshirt"
             },
             {
@@ -68,7 +64,7 @@ export default function SeedPage() {
                 description: "Heavyweight charcoal hoodie. Ultra-soft interior, perfect for cold track days.",
                 stock: 15,
                 sizes: ["S", "M", "L", "XL"],
-                image: hoodiePaddock,
+                image: undefined,
                 key: "hoodie"
             }
         ];
@@ -99,7 +95,7 @@ export default function SeedPage() {
                 title: "Mastering the Track: A Beginner's Guide",
                 slug: "mastering-the-track",
                 excerpt: "Learn the fundamentals of high-performance driving, from racing lines to braking points.",
-                image: blogTrackDay,
+                image: undefined,
                 key: "blog_track",
                 content: [
                     { id: "1", type: "heading", content: "The Perfect Racing Line" },
@@ -110,7 +106,7 @@ export default function SeedPage() {
                 title: "The Ultimate Sim Racing Setup",
                 slug: "ultimate-sim-racing-setup",
                 excerpt: "How to build a professional-grade sim rig at home for immersive practice.",
-                image: blogSimRacing,
+                image: undefined,
                 key: "blog_sim",
                 content: [
                     { id: "1", type: "heading", content: "Choosing the Right Wheel Base" },
@@ -120,7 +116,7 @@ export default function SeedPage() {
                 title: "Essential Car Maintenance Tips",
                 slug: "essential-maintenance-tips",
                 excerpt: "Keep your performance car running smoothly with these key maintenance habits.",
-                image: blogMaintenance,
+                image: undefined,
                 key: "blog_maint",
                 content: [
                     { id: "1", type: "heading", content: "Fluids are Life" },

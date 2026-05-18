@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
+import T from "@/components/T";
 import {
     BarChart,
     Bar,
@@ -103,11 +104,11 @@ export default function AdminDashboard() {
 
     const COLORS = ['#FBBF24', '#60A5FA', '#3B82F6', '#34D399', '#EF4444'];
 
-    if (loading) return <div className="text-white">Loading dashboard...</div>;
+    if (loading) return <div className="text-white"><T>Se încarcă tabloul de bord...</T></div>;
 
     return (
         <div>
-            <h1 className="text-3xl font-bold uppercase tracking-tighter mb-8 text-white">Dashboard</h1>
+            <h1 className="text-3xl font-bold uppercase tracking-tighter mb-8 text-white"><T>Tablou de bord</T></h1>
 
             {/* Key Metrics Grid
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -192,11 +193,11 @@ export default function AdminDashboard() {
             {/* Secondary Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
-                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Total Garage Projects</h3>
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest"><T>Total Proiecte Garaj</T></h3>
                     <p className="text-2xl font-bold text-white mt-1">{stats.projectsCount}</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
-                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Blog Articles</h3>
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest"><T>Articole Blog</T></h3>
                     <p className="text-2xl font-bold text-white mt-1">{stats.articlesCount}</p>
                 </div>
             </div>

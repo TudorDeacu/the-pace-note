@@ -6,8 +6,10 @@ import { createClient } from "@/utils/supabase/client";
 import { TrashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import BlockEditor, { Block } from "@/components/BlockEditor";
-import ConfirmModal from "@/components/ConfirmModal";
 import toast from "react-hot-toast";
+import { decryptUrlParam } from "@/utils/encryption";
+import ConfirmModal from "@/components/ConfirmModal";
+import T from "@/components/T";
 
 export default function EditProject() {
     const router = useRouter();
@@ -23,10 +25,11 @@ export default function EditProject() {
     useEffect(() => {
         async function fetchProject() {
             if (!params?.id) return;
+            const realId = decryptUrlParam(params.id as string);
             const { data, error } = await supabase
                 .from('projects')
                 .select('*')
-                .eq('id', params.id)
+                .eq('id', realId)
                 .single();
 
             if (data) {
@@ -59,13 +62,15 @@ export default function EditProject() {
                 return;
             }
 
+            const realId = decryptUrlParam(params?.id as string);
+
             const { error } = await supabase
                 .from('projects')
                 .update({
                     title,
                     content: { blocks, excerpt },
                 })
-                .eq('id', params?.id);
+                .eq('id', realId);
 
             if (error) {
                 console.error("Supabase update error:", error);
@@ -87,10 +92,11 @@ export default function EditProject() {
         setSaving(true);
         setIsDeleteModalOpen(false);
         try {
+            const realId = decryptUrlParam(params?.id as string);
             const { error } = await supabase
                 .from('projects')
                 .delete()
-                .eq('id', params?.id);
+                .eq('id', realId);
 
             if (error) {
                 console.error("Supabase delete error:", error);
@@ -109,16 +115,16 @@ export default function EditProject() {
         }
     };
 
-    if (loading) return <div className="text-white p-8">Loading...</div>;
+    if (loading) return <div className="text-white p-8"><T>Se încarcă...</T></div>;
 
     return (
         <div className="max-w-4xl mx-auto pb-20">
             <Link href="/admin/garage" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Garage
+                <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Garaj</T>
             </Link>
 
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit Project</h1>
+                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Editează Proiectul</T></h1>
                 <div className="flex gap-4">
                     <button
                         type="button"
@@ -126,14 +132,14 @@ export default function EditProject() {
                         disabled={saving}
                         className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
                     >
-                        <TrashIcon className="w-5 h-5" /> Delete
+                        <TrashIcon className="w-5 h-5" /> <T>Șterge</T>
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
                         className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Update"}
+                        {saving ? <T>Se salvează...</T> : <T>Actualizează</T>}
                     </button>
                 </div>
             </div>
@@ -142,7 +148,7 @@ export default function EditProject() {
                 {/* Meta Inputs */}
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Project Title</label>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Titlu Proiect</T></label>
                         <input
                             type="text"
                             value={title}
@@ -152,7 +158,7 @@ export default function EditProject() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Excerpt</label>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Rezumat</T></label>
                         <textarea
                             value={excerpt}
                             onChange={(e) => setExcerpt(e.target.value)}

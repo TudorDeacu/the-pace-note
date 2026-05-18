@@ -21,6 +21,7 @@ export default function Register() {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
+    const [title, setTitle] = useState("");
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ export default function Register() {
 
         setLoading(true);
 
-        const result = await signup(email, password, firstName, lastName, username);
+        const result = await signup(email, password, firstName, lastName, username, title);
 
         if (result.error) {
             setError(result.error);
@@ -101,15 +102,29 @@ export default function Register() {
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Nume utilizator</T></label>
-                                    <input
-                                        type="text"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none transition-colors"
-                                        required
-                                    />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Apelativ</T></label>
+                                        <select
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                            className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none transition-colors appearance-none cursor-pointer"
+                                        >
+                                            <option value="" className="bg-zinc-900 text-zinc-400">Selectează...</option>
+                                            <option value="Domnul" className="bg-zinc-900">Domnul</option>
+                                            <option value="Doamna / Domnișoara" className="bg-zinc-900">Doamna / Domnișoara</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-1"><T>Nume utilizator</T></label>
+                                        <input
+                                            type="text"
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                            className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none transition-colors"
+                                            required
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>

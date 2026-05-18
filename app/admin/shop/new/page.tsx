@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
+import T from "@/components/T";
 
 export default function NewProduct() {
     const router = useRouter();
@@ -97,10 +98,10 @@ export default function NewProduct() {
 
     return (
         <div className="pb-20">
-            <h1 className="text-3xl font-bold uppercase tracking-tighter text-white mb-8">Add New Product</h1>
+            <h1 className="text-3xl font-bold uppercase tracking-tighter text-white mb-8"><T>Adaugă Produs Nou</T></h1>
             <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl bg-zinc-900 border border-zinc-800 p-8 rounded-lg">
                 <div>
-                    <label htmlFor="name" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest">Product Name</label>
+                    <label htmlFor="name" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest"><T>Nume Produs</T></label>
                     <div className="mt-2">
                         <input
                             type="text"
@@ -116,7 +117,7 @@ export default function NewProduct() {
 
                 <div className="grid grid-cols-2 gap-6">
                     <div>
-                        <label htmlFor="price" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest">Price (RON)</label>
+                        <label htmlFor="price" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest"><T>Preț (RON)</T></label>
                         <div className="mt-2">
                             <input
                                 type="number"
@@ -132,7 +133,7 @@ export default function NewProduct() {
                         </div>
                     </div>
                     <div>
-                        <label htmlFor="stock" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest">Stock</label>
+                        <label htmlFor="stock" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest"><T>Stoc</T></label>
                         <div className="mt-2">
                             <input
                                 type="number"
@@ -149,7 +150,7 @@ export default function NewProduct() {
                 </div>
 
                 <div>
-                    <label htmlFor="dimensions" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest">Dimensions</label>
+                    <label htmlFor="dimensions" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest"><T>Dimensiuni</T></label>
                     <div className="mt-2">
                         <input
                             type="text"
@@ -164,7 +165,7 @@ export default function NewProduct() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest mb-2">Images</label>
+                    <label className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest mb-2"><T>Imagini</T></label>
                     <div className="space-y-3">
                         {images.map((img, index) => (
                             <div key={index} className="flex gap-2">
@@ -191,11 +192,11 @@ export default function NewProduct() {
                             onClick={addImageField}
                             className="text-sm text-red-500 font-bold uppercase tracking-wide hover:text-red-400 flex items-center gap-1"
                         >
-                            <PlusIcon className="w-4 h-4" /> Add Another Image
+                            <PlusIcon className="w-4 h-4" /> <T>Adaugă altă imagine</T>
                         </button>
                     </div>
                     <div className="mt-4 border-t border-zinc-800 pt-4">
-                        <label className="block text-sm font-semibold leading-6 text-zinc-400 uppercase tracking-widest mb-2">Or Upload Image</label>
+                        <label className="block text-sm font-semibold leading-6 text-zinc-400 uppercase tracking-widest mb-2"><T>Sau Încarcă Imagine</T></label>
                         <input
                             type="file"
                             accept="image/*"
@@ -213,7 +214,7 @@ export default function NewProduct() {
                 </div>
 
                 <div>
-                    <label htmlFor="description" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest">Description</label>
+                    <label htmlFor="description" className="block text-sm font-semibold leading-6 text-white uppercase tracking-widest"><T>Descriere</T></label>
                     <div className="mt-2">
                         <textarea
                             name="description"
@@ -232,7 +233,7 @@ export default function NewProduct() {
                         disabled={loading}
                         className="bg-red-600 px-8 py-3 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
                     >
-                        {loading ? "Saving..." : "Save Product"}
+                        {loading ? <T>Se salvează...</T> : <T>Salvează Produsul</T>}
                     </button>
                 </div>
             </form>

@@ -22,6 +22,7 @@ import { CartProvider } from "@/context/CartContext";
 import { TranslationProvider } from "@/context/TranslationContext";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "react-hot-toast";
+import CookieConsent from "@/components/CookieConsent";
 
 export default function RootLayout({
   children,
@@ -37,6 +38,7 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               {children}
+              <CookieConsent />
               <Analytics />
               <Toaster 
                 position="bottom-center"

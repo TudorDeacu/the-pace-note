@@ -6,6 +6,7 @@ import { XMarkIcon, TrashIcon, MinusIcon, PlusIcon } from "@heroicons/react/24/o
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import Image from "next/image";
+import T from "@/components/T";
 
 export default function CartDrawer() {
     const { items, cartOpen, setCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -42,7 +43,7 @@ export default function CartDrawer() {
                                         <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                                             <div className="flex items-start justify-between">
                                                 <DialogTitle className="text-lg font-bold text-white uppercase tracking-widest">
-                                                    Shopping Cart
+                                                    <T>Coș de cumpărături</T>
                                                 </DialogTitle>
                                                 <div className="ml-3 flex h-7 items-center">
                                                     <button
@@ -60,7 +61,7 @@ export default function CartDrawer() {
                                             <div className="mt-8">
                                                 <div className="flow-root">
                                                     {items.length === 0 ? (
-                                                        <p className="text-zinc-500 text-center py-10">Your cart is empty.</p>
+                                                        <p className="text-zinc-500 text-center py-10"><T>Coșul tău este gol.</T></p>
                                                     ) : (
                                                         <ul role="list" className="-my-6 divide-y divide-zinc-800">
                                                             {items.map((item) => (
@@ -74,7 +75,7 @@ export default function CartDrawer() {
                                                                                 className="object-cover object-center"
                                                                             />
                                                                         ) : (
-                                                                            <div className="h-full w-full bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs">No Img</div>
+                                                                            <div className="h-full w-full bg-zinc-900 flex items-center justify-center text-zinc-700 text-xs"><T>Fără Img</T></div>
                                                                         )}
                                                                     </div>
 
@@ -87,7 +88,7 @@ export default function CartDrawer() {
                                                                                 <p className="ml-4">{item.price * item.quantity} RON</p>
                                                                             </div>
                                                                             {item.size && (
-                                                                                <p className="mt-1 text-sm text-zinc-400">Size: {item.size}</p>
+                                                                                <p className="mt-1 text-sm text-zinc-400"><T>Mărime:</T> {item.size}</p>
                                                                             )}
                                                                         </div>
                                                                         <div className="flex flex-1 items-end justify-between text-sm">
@@ -113,7 +114,7 @@ export default function CartDrawer() {
                                                                                 onClick={() => removeFromCart(item.id)}
                                                                             >
                                                                                 <TrashIcon className="h-4 w-4" />
-                                                                                Remove
+                                                                                <T>Elimină</T>
                                                                             </button>
                                                                         </div>
                                                                     </div>
@@ -127,28 +128,28 @@ export default function CartDrawer() {
 
                                         <div className="border-t border-zinc-800 px-4 py-6 sm:px-6">
                                             <div className="flex justify-between text-base font-medium text-white">
-                                                <p className="uppercase tracking-widest">Subtotal</p>
+                                                <p className="uppercase tracking-widest"><T>Subtotal</T></p>
                                                 <p>{cartTotal} RON</p>
                                             </div>
-                                            <p className="mt-0.5 text-sm text-zinc-500">Shipping and taxes calculated at checkout.</p>
+                                            <p className="mt-0.5 text-sm text-zinc-500"><T>Livrarea și taxele sunt calculate la finalizare.</T></p>
                                             <div className="mt-6">
                                                 <Link
                                                     href="/checkout"
                                                     className="flex items-center justify-center rounded-md border border-transparent bg-red-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-red-500 uppercase tracking-widest"
                                                     onClick={() => setCartOpen(false)}
                                                 >
-                                                    Checkout
+                                                    <T>Finalizează comanda</T>
                                                 </Link>
                                             </div>
                                             <div className="mt-6 flex justify-center text-center text-sm text-zinc-500">
                                                 <p>
-                                                    or{" "}
+                                                    <T>sau</T>{" "}
                                                     <button
                                                         type="button"
                                                         className="font-medium text-red-500 hover:text-red-400"
                                                         onClick={() => setCartOpen(false)}
                                                     >
-                                                        Continue Shopping
+                                                        <T>Continuă cumpărăturile</T>
                                                         <span aria-hidden="true"> &rarr;</span>
                                                     </button>
                                                 </p>

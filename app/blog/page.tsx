@@ -4,10 +4,9 @@ import T from "@/components/T";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import Image from "next/image";
+import { encryptUrlParam } from "@/utils/encryption";
 
-import blogTrackDay from "../images/blog_track_day.png";
-import blogSimRacing from "../images/blog_sim_racing.png";
-import blogMaintenance from "../images/blog_maintenance.png";
+
 
 export interface Article {
     id: string;
@@ -30,7 +29,6 @@ const DEMO_ARTICLES: Article[] = [
         published: true,
         created_at: new Date().toISOString(),
         excerpt: "Learn the fundamentals of high-performance driving, from racing lines to braking points.",
-        imageUrl: blogTrackDay,
     },
     {
         id: "demo-2",
@@ -39,7 +37,6 @@ const DEMO_ARTICLES: Article[] = [
         published: true,
         created_at: new Date(Date.now() - 86400000).toISOString(),
         excerpt: "How to build a professional-grade sim rig at home for immersive practice.",
-        imageUrl: blogSimRacing,
     },
     {
         id: "demo-3",
@@ -48,7 +45,6 @@ const DEMO_ARTICLES: Article[] = [
         published: true,
         created_at: new Date(Date.now() - 172800000).toISOString(),
         excerpt: "Keep your performance car running smoothly with these key maintenance habits.",
-        imageUrl: blogMaintenance,
     },
 ];
 
@@ -123,7 +119,7 @@ export default async function Blog() {
                                             </div>
                                         <div className="group relative flex-1">
                                             <h3 className="text-lg font-semibold leading-6 text-white group-hover:text-red-500 transition-colors uppercase tracking-wide">
-                                                <Link href={`/blog/${article.slug}`}>
+                                                <Link href={`/blog/${encryptUrlParam(article.slug)}`}>
                                                     <span className="absolute inset-0" />
                                                     {article.title}
                                                 </Link>

@@ -3,6 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { decryptUrlParam } from "@/utils/encryption";
+import T from "@/components/T";
 
 interface Block {
     id: string;
@@ -13,26 +15,24 @@ interface Block {
     imageSide?: "left" | "right";
 }
 
-import blogTrackDay from "../../images/blog_track_day.png";
-import blogSimRacing from "../../images/blog_sim_racing.png";
-import blogMaintenance from "../../images/blog_maintenance.png";
+
 
 const DEMO_CONTENT: Record<string, Block[]> = {
     "mastering-the-track": [
         { id: "1", type: "heading", content: "The Perfect Racing Line" },
         { id: "2", type: "paragraph", content: "Understanding the geometric racing line is crucial for fast lap times. It's about maximizing the radius of the turn to maintain the highest possible average speed." },
-        { id: "3", type: "image", content: "", imageUrl: blogTrackDay.src, caption: "Sunset session at the Nürburgring." },
+        { id: "3", type: "image", content: "", caption: "Sunset session at the Nürburgring." },
         { id: "4", type: "paragraph", content: "Always look ahead. Your hands follow your eyes. If you look at the barrier, you will hit the barrier. Look at the apex, then immediately look for the exit." }
     ],
     "ultimate-sim-racing-setup": [
         { id: "1", type: "heading", content: "Choosing the Right Wheel Base" },
         { id: "2", type: "paragraph", content: "Direct Drive is the gold standard. It provides 1:1 force feedback without belts or gears dampening the detail." },
-        { id: "3", type: "image-text", content: "A solid rig is just as important as the wheel. If your seat flexes under braking, you lose consistency.", imageUrl: blogSimRacing.src, caption: "Triple monitor setup with ambient lighting." },
+        { id: "3", type: "image-text", content: "A solid rig is just as important as the wheel. If your seat flexes under braking, you lose consistency.", caption: "Triple monitor setup with ambient lighting." },
     ],
     "essential-maintenance-tips": [
         { id: "1", type: "heading", content: "Fluids are Life" },
         { id: "2", type: "paragraph", content: "Oil, brake fluid, coolant. Check them regularly. High performance driving degrades fluids much faster than daily commuting." },
-        { id: "3", type: "image", content: "", imageUrl: blogMaintenance.src, caption: "Regular checks prevent catastrophic failures." },
+        { id: "3", type: "image", content: "", caption: "Regular checks prevent catastrophic failures." },
     ]
 };
 
@@ -48,17 +48,18 @@ interface Article {
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
+    const realSlug = decryptUrlParam(slug);
     const supabase = await createClient();
     
     let article: Article | null = null;
 
-    if (DEMO_CONTENT[slug]) {
-        const demoTitle = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    if (DEMO_CONTENT[realSlug]) {
+        const demoTitle = realSlug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
         article = {
             id: "demo",
             title: demoTitle,
-            slug: slug,
-            content: { blocks: DEMO_CONTENT[slug] },
+            slug: realSlug,
+            content: { blocks: DEMO_CONTENT[realSlug] },
             published: true,
             created_at: new Date().toISOString()
         };
@@ -66,7 +67,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         const { data, error } = await supabase
             .from('articles')
             .select('*')
-            .eq('slug', slug)
+            .eq('slug', realSlug)
             .single();
 
         if (data) {
@@ -79,8 +80,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     if (!article || !article.published) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center flex-col gap-4">
-                <p className="text-white">Article not found.</p>
-                <Link href="/blog" className="text-red-500 hover:text-red-400">Back to Blog</Link>
+                <p className="text-white"><T>Articolul nu a fost găsit.</T></p>
+                <Link href="/blog" className="text-red-500 hover:text-red-400"><T>Înapoi la Blog</T></Link>
             </div>
         );
     }
@@ -93,7 +94,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <Navbar />
             <main className="pt-32 px-6 lg:px-8 max-w-4xl mx-auto pb-20">
                 <Link href="/blog" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Blog
+                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Blog</T>
                 </Link>
 
                 <article>

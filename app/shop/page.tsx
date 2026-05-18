@@ -6,9 +6,7 @@ import T from "@/components/T";
 import Link from "next/link";
 import Image from "next/image";
 
-import stickerPack from "../images/sticker_pack.png";
-import tshirtBlack from "../images/tshirt_black.png";
-import hoodiePaddock from "../images/hoodie_paddock.png";
+
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
@@ -30,7 +28,7 @@ const DEMO_PRODUCTS: Product[] = [
         price: 49,
         description: "High quality vinyl stickers. Weatherproof and durable. Perfect for your car, helmet, or laptop.",
         stock: 50,
-        images: [stickerPack],
+        images: [],
     },
     {
         id: "demo-2",
@@ -38,7 +36,7 @@ const DEMO_PRODUCTS: Product[] = [
         price: 129,
         description: "Premium cotton blend t-shirt with minimalist TPN branding. Athletic fit.",
         stock: 25,
-        images: [tshirtBlack],
+        images: [],
     },
     {
         id: "demo-3",
@@ -46,7 +44,7 @@ const DEMO_PRODUCTS: Product[] = [
         price: 249,
         description: "Heavyweight charcoal hoodie. Ultra-soft interior, perfect for cold track days.",
         stock: 15,
-        images: [hoodiePaddock],
+        images: [],
     },
 ];
 
