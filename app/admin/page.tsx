@@ -27,76 +27,111 @@ export default function AdminDashboard() {
     });
     const [revenueData, setRevenueData] = useState<any[]>([]);
     const [statusData, setStatusData] = useState<any[]>([]);
+    const [galleryStats, setGalleryStats] = useState({
+        count: 0,
+        totalFiles: 0,
+        names: [] as string[]
+    });
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
 
     useEffect(() => {
         async function fetchStats() {
-            // Count tables
-            const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
-            const { count: projectsCount } = await supabase.from('projects').select('*', { count: 'exact', head: true });
-            const { count: articlesCount } = await supabase.from('articles').select('*', { count: 'exact', head: true }).not('slug', 'like', 'page-%');
+            try {
+                // Count tables
+                const { count: productsCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
+                const { count: projectsCount } = await supabase.from('projects').select('*', { count: 'exact', head: true });
+                const { count: articlesCount } = await supabase.from('articles').select('*', { count: 'exact', head: true }).not('slug', 'like', 'page-%');
 
-            // Fetch orders for analytics
-            const { data: orders } = await supabase.from('orders').select('status, total_amount, created_at');
+                // Fetch orders for analytics
+                const { data: orders } = await supabase.from('orders').select('status, total_amount, created_at');
 
-            let totalRevenue = 0;
-            let pendingOrders = 0;
-            const revenueByDate: Record<string, number> = {};
-            const statusCounts: Record<string, number> = {
-                pending: 0,
-                processing: 0,
-                shipped: 0,
-                delivered: 0,
-                cancelled: 0
-            };
-
-            if (orders) {
-                orders.forEach(order => {
-                    // Total Revenue & Pending
-                    if (order.status !== 'cancelled') {
-                        totalRevenue += Number(order.total_amount);
-                    }
-                    if (order.status === 'pending') {
-                        pendingOrders++;
-                    }
-
-                    // Status counts
-                    const status = order.status.toLowerCase();
-                    if (statusCounts[status] !== undefined) {
-                        statusCounts[status]++;
-                    }
-
-                    // Revenue by date (last 7 days typically, or all time aggregated by date)
-                    const date = new Date(order.created_at).toLocaleDateString();
-                    if (order.status !== 'cancelled') {
-                        revenueByDate[date] = (revenueByDate[date] || 0) + Number(order.total_amount);
-                    }
+                // Fetch galleries for stats
+                const { data: galleries } = await supabase.from('galleries').select('title, media');
+                
+                let totalFiles = 0;
+                const galleryNames: string[] = [];
+                
+                if (galleries) {
+                    galleries.forEach(g => {
+                        if (g.title) galleryNames.push(g.title);
+                        if (Array.isArray(g.media)) {
+                            totalFiles += g.media.length;
+                        }
+                    });
+                }
+                
+                setGalleryStats({
+                    count: galleries?.length || 0,
+                    totalFiles,
+                    names: galleryNames
                 });
+
+                let totalRevenue = 0;
+                let pendingOrders = 0;
+                const revenueByDate: Record<string, number> = {};
+                const statusCounts: Record<string, number> = {
+                    pending: 0,
+                    processing: 0,
+                    shipped: 0,
+                    delivered: 0,
+                    cancelled: 0
+                };
+
+                if (orders) {
+                    orders.forEach(order => {
+                        // Total Revenue & Pending
+                        if (order.status !== 'cancelled') {
+                            totalRevenue += Number(order.total_amount) || 0;
+                        }
+                        if (order.status === 'pending') {
+                            pendingOrders++;
+                        }
+
+                        // Status counts
+                        const status = order.status ? String(order.status).toLowerCase() : 'unknown';
+                        if (statusCounts[status] !== undefined) {
+                            statusCounts[status]++;
+                        } else if (status !== 'unknown') {
+                            statusCounts[status] = 1;
+                        }
+
+                        // Revenue by date (last 7 days typically, or all time aggregated by date)
+                        if (order.created_at) {
+                            const date = new Date(order.created_at).toLocaleDateString();
+                            if (order.status !== 'cancelled') {
+                                revenueByDate[date] = (revenueByDate[date] || 0) + (Number(order.total_amount) || 0);
+                            }
+                        }
+                    });
+                }
+
+                // Transform for charts
+                const revenueChartData = Object.keys(revenueByDate).map(date => ({
+                    date,
+                    amount: revenueByDate[date]
+                })).slice(-7); // Last 7 days
+
+                const statusChartData = Object.keys(statusCounts).map(status => ({
+                    name: status.charAt(0).toUpperCase() + status.slice(1),
+                    value: statusCounts[status]
+                }));
+
+                setStats({
+                    productsCount: productsCount || 0,
+                    projectsCount: projectsCount || 0,
+                    articlesCount: articlesCount || 0,
+                    pendingOrders,
+                    totalRevenue,
+                    totalOrders: orders?.length || 0
+                });
+                setRevenueData(revenueChartData);
+                setStatusData(statusChartData);
+            } catch (err) {
+                console.error("Error fetching admin stats:", err);
+            } finally {
+                setLoading(false);
             }
-
-            // Transform for charts
-            const revenueChartData = Object.keys(revenueByDate).map(date => ({
-                date,
-                amount: revenueByDate[date]
-            })).slice(-7); // Last 7 days
-
-            const statusChartData = Object.keys(statusCounts).map(status => ({
-                name: status.charAt(0).toUpperCase() + status.slice(1),
-                value: statusCounts[status]
-            }));
-
-            setStats({
-                productsCount: productsCount || 0,
-                projectsCount: projectsCount || 0,
-                articlesCount: articlesCount || 0,
-                pendingOrders,
-                totalRevenue,
-                totalOrders: orders?.length || 0
-            });
-            setRevenueData(revenueChartData);
-            setStatusData(statusChartData);
-            setLoading(false);
         }
 
         fetchStats();
@@ -191,7 +226,7 @@ export default function AdminDashboard() {
             */}
 
             {/* Secondary Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
                     <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest"><T>Total Proiecte Garaj</T></h3>
                     <p className="text-2xl font-bold text-white mt-1">{stats.projectsCount}</p>
@@ -199,6 +234,32 @@ export default function AdminDashboard() {
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg">
                     <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest"><T>Articole Blog</T></h3>
                     <p className="text-2xl font-bold text-white mt-1">{stats.articlesCount}</p>
+                </div>
+            </div>
+
+            {/* Gallery Stats */}
+            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg mb-8">
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6"><T>Statistici Galerii Foto</T></h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <p className="text-sm text-zinc-500 uppercase tracking-wider"><T>Albume Create</T></p>
+                        <p className="text-3xl font-bold text-white mt-2">{galleryStats.count}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-zinc-500 uppercase tracking-wider"><T>Fișiere Încărcate</T></p>
+                        <p className="text-3xl font-bold text-white mt-2">{galleryStats.totalFiles}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-zinc-500 uppercase tracking-wider mb-3"><T>Nume Albume</T></p>
+                        <div className="flex flex-wrap gap-2">
+                            {galleryStats.names.map((name, idx) => (
+                                <span key={idx} className="bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs px-2.5 py-1 rounded-md">
+                                    {name}
+                                </span>
+                            ))}
+                            {galleryStats.names.length === 0 && <span className="text-sm text-zinc-600 italic"><T>Niciun album</T></span>}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

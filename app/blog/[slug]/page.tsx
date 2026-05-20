@@ -72,6 +72,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         if (data) {
             article = data;
+            // Increment view count in the background
+            supabase.rpc('increment_article_views', { article_slug: realSlug }).then();
         } else {
             console.error("Error fetching article:", error);
         }

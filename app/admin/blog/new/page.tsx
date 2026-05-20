@@ -26,6 +26,7 @@ export default function NewArticle() {
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(false);
     const [isPublished, setIsPublished] = useState(false);
+    const [notifySubscribers, setNotifySubscribers] = useState(true);
     const [uploadingImage, setUploadingImage] = useState(false);
     
     // Crucial: Memoize the Supabase Client to prevent recreation dropping active network requests and causing browser lock deadlocks
@@ -64,7 +65,8 @@ export default function NewArticle() {
                 title,
                 slug,
                 content: { blocks, excerpt, image_url: imageUrl }, // Store fallback in JSONB as well
-                published: true // Default to published for now, or add a toggle
+                published: true, // Default to published for now, or add a toggle
+                notifySubscribers
             });
 
             if (result.error) {
@@ -139,6 +141,18 @@ export default function NewArticle() {
                             className="w-full bg-black/50 border border-zinc-800 rounded p-3 text-white focus:border-red-600 outline-none"
                             placeholder="Brief summary..."
                         />
+                    </div>
+                    <div className="flex items-center gap-3 pt-2">
+                        <input 
+                            type="checkbox" 
+                            id="notify_subs" 
+                            checked={notifySubscribers}
+                            onChange={(e) => setNotifySubscribers(e.target.checked)}
+                            className="w-5 h-5 accent-red-600 cursor-pointer"
+                        />
+                        <label htmlFor="notify_subs" className="text-zinc-300 font-medium cursor-pointer">
+                            Trimite notificare abonaților pe email (Newsletter)
+                        </label>
                     </div>
                 </div>
 
