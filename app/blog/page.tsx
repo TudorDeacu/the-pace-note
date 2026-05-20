@@ -99,7 +99,7 @@ export default async function Blog() {
 
                                 return (
                                     <article key={article.id} className="flex flex-col items-start justify-between bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-900 transition-colors group overflow-hidden">
-                                        <div className="relative h-48 w-full overflow-hidden">
+                                        <Link href={`/blog/${encryptUrlParam(article.slug)}`} className="relative h-48 w-full overflow-hidden block">
                                             {thumbnail ? (
                                                 <Image
                                                     src={thumbnail}
@@ -110,7 +110,7 @@ export default async function Blog() {
                                             ) : (
                                                 <div className="h-full w-full bg-zinc-800 flex items-center justify-center text-zinc-600"><T>Fără imagine</T></div>
                                             )}
-                                        </div>
+                                        </Link>
                                         <div className="p-6 flex flex-col flex-1 w-full">
                                             <div className="flex items-center gap-x-4 text-xs mb-4">
                                                 <time dateTime={article.created_at} className="text-zinc-500">
