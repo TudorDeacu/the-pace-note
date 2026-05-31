@@ -5,7 +5,7 @@ import { resend, SENDER_EMAIL, getEmailTemplate } from "@/utils/email";
 
 export async function broadcastNewsletter(subject: string, messageHtml: string, imageUrl?: string) {
     if (!resend) {
-        return { error: "Resend API key nu este configurat. Verifică fișierul .env.local" };
+        return { error: "Resend API key nu este configurat. Verifică fișierul .env" };
     }
 
     if (!subject || !messageHtml) {
@@ -18,7 +18,7 @@ export async function broadcastNewsletter(subject: string, messageHtml: string, 
         // Fetch all subscribed users
         const { data: subscribers, error: dbError } = await supabase
             .from('newsletter_subscribers')
-            .select('email, first_name')
+            .select('id, email, first_name')
             .eq('status', 'subscribed');
 
         if (dbError) {
@@ -37,16 +37,16 @@ export async function broadcastNewsletter(subject: string, messageHtml: string, 
 
         for (let i = 0; i < subscribers.length; i += BATCH_LIMIT) {
             const chunk = subscribers.slice(i, i + BATCH_LIMIT);
-            
+
             const emailsToSend = chunk.map(sub => {
                 // Personalize the message
                 const personalizedMessage = messageHtml.replace(/\[Nume\]/g, sub.first_name || 'Pasionatule');
-                
+
                 return {
                     from: SENDER_EMAIL,
                     to: [sub.email],
                     subject: subject,
-                    html: getEmailTemplate(subject, personalizedMessage, imageUrl),
+                    html: getEmailTemplate(subject, personalizedMessage, imageUrl, sub.id),
                 };
             });
 

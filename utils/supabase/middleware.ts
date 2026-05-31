@@ -17,15 +17,19 @@ export async function updateSession(request: NextRequest) {
                     return request.cookies.getAll()
                 },
                 setAll(cookiesToSet) {
+                    const rememberMe = request.cookies.get('remember_me')?.value !== 'false';
                     cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
                     response = NextResponse.next({
                         request: {
                             headers: request.headers,
                         },
                     })
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        response.cookies.set(name, value, options)
-                    )
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        const finalOptions = rememberMe 
+                            ? options 
+                            : { ...options, maxAge: undefined, expires: undefined };
+                        response.cookies.set(name, value, finalOptions)
+                    })
                 },
             },
         }

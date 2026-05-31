@@ -11,7 +11,7 @@ export default function Footer() {
                 <div className="flex flex-col md:flex-row justify-between items-start gap-8">
                     <div className="flex flex-col items-start w-full md:w-auto text-left">
                         <span className="text-xl font-bold uppercase tracking-tighter">The Pace Note</span>
-                        <p className="text-zinc-500 text-sm mt-2">Orange Tainted Dreams.</p>
+                        <span className="inline-block bg-[#e9482f] text-white text-sm font-medium px-2 py-0.5 mt-2">Orange Tainted Dreams.</span>
                     </div>
                     <div className="flex flex-col gap-6 items-center md:items-start">
                         <div className="flex flex-wrap gap-4 md:gap-6 text-sm text-zinc-400 justify-center max-w-full">
@@ -25,6 +25,7 @@ export default function Footer() {
                             <Link href="https://www.instagram.com/thepacenote/" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors uppercase tracking-widest">Instagram</Link>
                             <Link href="https://www.facebook.com/profile.php?id=61583479544402" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors uppercase tracking-widest">Facebook</Link>
                             <Link href="https://www.youtube.com/channel/UC1hSXkxGPGsaXFuNtKLIjvA" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors uppercase tracking-widest">YouTube</Link>
+                            <Link href="https://discord.gg/w3eTEN8JvS" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors uppercase tracking-widest">Discord</Link>
                         </div>
                         {/* 
                         <div className="flex justify-center md:justify-start w-full">

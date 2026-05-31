@@ -62,7 +62,7 @@ export default function RootLayout({
                   },
                   error: {
                     iconTheme: {
-                      primary: '#dc2626', // red-600
+                      primary: '#e9482f', // new brand color
                       secondary: '#fff',
                     },
                   },

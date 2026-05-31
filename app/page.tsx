@@ -43,7 +43,7 @@ export default async function Home() {
                         <div className="mt-10 flex items-center justify-center gap-x-6">
                             <Link
                                 href="/blog"
-                                className="rounded-none bg-[#E9482F] px-8 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-red-500 hover:scale-105 transition-all uppercase tracking-widest"
+                                className="rounded-none bg-[#e9482f] px-8 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-red-500 hover:scale-105 transition-all uppercase tracking-widest"
                             >
                                 <T>Citește Blogul</T>
                             </Link>
@@ -86,7 +86,7 @@ export default async function Home() {
                 {/* Orange Tainted Dreams Banner */}
                 <div className="bg-black w-full py-8 md:py-12 px-4 flex items-center justify-center border-b border-zinc-900">
                     <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter text-center">
-                        Orange Tainted <span className="text-transparent bg-clip-text bg-[#E9482F]">Dreams</span>
+                        Orange Tainted <span className="text-transparent bg-clip-text bg-[#e9482f]">Dreams</span>
                     </h2>
                 </div>
 
@@ -99,7 +99,7 @@ export default async function Home() {
                             <div className="absolute inset-0 bg-cover bg-center grayscale" style={{ backgroundImage: `url('${splitMedia}')` }}></div>
                         )}
                     </div>
-                    <div className="bg-[#E9482F] p-8 md:p-12 lg:p-24 flex flex-col justify-center">
+                    <div className="bg-[#e9482f] p-8 md:p-12 lg:p-24 flex flex-col justify-center">
                         <h2 className="text-white text-3xl md:text-4xl font-bold uppercase mb-8 whitespace-pre-line"><T>Povestea Noastră</T></h2>
                         <p className="text-white/90 text-base md:text-lg leading-relaxed mb-8 font-medium">
                             <T>The Pace Note urmărește motorsportul românesc dintr-o poziție pe care puțini o văd și și mai puțini o înțeleg. Nu explicăm, nu traducem, nu facem spectacol. Observăm. Selectăm. Notăm.</T>

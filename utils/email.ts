@@ -5,18 +5,18 @@ const resendApiKey = process.env.RESEND_API_KEY;
 export const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 // The default sender email for The Pace Note
-export const SENDER_EMAIL = "The Pace Note <newsletter@thepacenote.com>"; // Replace with your verified domain!
+export const SENDER_EMAIL = "The Pace Note <newsletter@thepacenote.ro>"; // Replace with your verified domain!
 
 /**
  * Base HTML Email Template wrapper for The Pace Note branding.
  */
-export function getEmailTemplate(title: string, bodyContent: string, imageUrl?: string) {
+export function getEmailTemplate(title: string, bodyContent: string, imageUrl?: string, subscriberId?: string) {
     const heroImageHtml = imageUrl 
         ? `<img src="${imageUrl}" width="100%" style="display: block; border-top-left-radius: 4px; border-top-right-radius: 4px;">`
         : '';
 
     // Fallback logo URL (can be replaced with actual hosted logo URL later)
-    const logoUrl = "https://thepacenote.com/images/logo.png"; // Replace with your actual logo URL
+    const logoUrl = "https://thepacenote.ro/images/logo.png"; // Replace with your actual logo URL
 
     return `
     <!DOCTYPE html>
@@ -46,7 +46,7 @@ export function getEmailTemplate(title: string, bodyContent: string, imageUrl?: 
               
               <p style="color: #444; font-size: 11px; margin-top: 30px; text-align: center;">
                 Primești acest mail pentru că ești membru al comunității The Pace Note.<br>
-                <a href="https://thepacenote.com" style="color: #666; text-decoration: underline;">Dezabonare</a>
+                <a href="${subscriberId ? `https://thepacenote.ro/newsletter/unsubscribe?token=${subscriberId}` : 'https://thepacenote.ro/newsletter/unsubscribe'}" style="color: #666; text-decoration: underline;">Dezabonare</a>
               </p>
             </td>
           </tr>

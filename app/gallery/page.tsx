@@ -36,8 +36,7 @@ export default async function GalleryPage() {
                     <div className="mx-auto max-w-2xl lg:mx-0">
                         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase"><T>Galerie</T></h2>
                     </div>
-
-                    <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-zinc-800 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+                    <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-zinc-800 pt-10 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                         {!galleries || galleries.length === 0 ? (
                             <div className="col-span-full text-center text-zinc-500 italic py-12">
                                 <T>Nu există nicio galerie momentan.</T>
@@ -45,7 +44,7 @@ export default async function GalleryPage() {
                         ) : (
                             galleries.map((gallery) => {
                                 return (
-                                    <article key={gallery.id} className="flex flex-col items-start justify-between bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-900 transition-colors group overflow-hidden">
+                                    <article key={gallery.id} className="relative flex flex-col items-start justify-between bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-900 transition-colors group overflow-hidden">
                                         <div className="relative h-64 w-full overflow-hidden">
                                             {gallery.cover_image ? (
                                                 <Image
@@ -67,7 +66,7 @@ export default async function GalleryPage() {
                                                     {gallery.media?.length || 0} <T>fișiere media</T>
                                                 </span>
                                             </div>
-                                            <div className="group relative flex-1">
+                                            <div className="group flex-1">
                                                 <h3 className="text-xl font-semibold leading-6 text-white group-hover:text-red-500 transition-colors uppercase tracking-wide">
                                                     <Link href={`/gallery/${encryptUrlParam(gallery.id)}`}>
                                                         <span className="absolute inset-0" />

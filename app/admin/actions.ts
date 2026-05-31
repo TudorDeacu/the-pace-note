@@ -25,7 +25,7 @@ export async function submitArticle(data: any) {
                   ${articleData.content?.excerpt || 'Avem un nou articol pe blog care credem că te-ar putea interesa. Apasă pe butonul de mai jos pentru a-l citi integral.'}
                 </p>
                 
-                <a href="https://thepacenote.com/blog/${article.slug}" style="display: inline-block; padding: 12px 25px; background-color: #ffffff; color: #000; text-decoration: none; font-weight: bold; margin-top: 20px; font-size: 13px; text-transform: uppercase;">Citește tot articolul</a>
+                <a href="https://thepacenote.ro/blog/${article.slug}" style="display: inline-block; padding: 12px 25px; background-color: #ffffff; color: #000; text-decoration: none; font-weight: bold; margin-top: 20px; font-size: 13px; text-transform: uppercase;">Citește tot articolul</a>
             `;
             // Fire and forget (don't block the UI)
             broadcastNewsletter(subject, message, imageUrl).catch(err => console.error("Broadcast err", err));

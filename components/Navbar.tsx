@@ -33,7 +33,7 @@ export default function Navbar() {
     ];
 
     return (
-        <header className="bg-black text-white selection:bg-red-600 fixed w-full z-50 border-b border-zinc-900/50 backdrop-blur-md bg-black/80">
+        <header className="bg-black text-white selection:bg-red-600 fixed w-full z-50 border-b border-zinc-900/50 bg-black">
             <nav
                 className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
                 aria-label="Global"
