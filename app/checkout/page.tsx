@@ -20,8 +20,6 @@ const Map = dynamic(
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
-export const dynamic = "force-dynamic";
-
 export default function Checkout() {
     const { items, cartTotal } = useCart();
     const { user } = useAuth();
