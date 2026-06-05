@@ -6,6 +6,8 @@ import T from "@/components/T";
 import toast from "react-hot-toast";
 import { broadcastNewsletter } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminNewsletter() {
     const [subscribersCount, setSubscribersCount] = useState(0);
     const [loadingStats, setLoadingStats] = useState(true);

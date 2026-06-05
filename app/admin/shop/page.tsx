@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import T from "@/components/T";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminShop() {
     const supabase = await createClient();
     const { data: products } = await supabase

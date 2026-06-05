@@ -8,6 +8,8 @@ import { submitArticle, updateArticle } from "@/app/admin/actions";
 import toast from "react-hot-toast";
 import T from "@/components/T";
 
+export const dynamic = "force-dynamic";
+
 export default function EditAboutPage() {
     const router = useRouter();
     const [blocks, setBlocks] = useState<Block[]>([]);

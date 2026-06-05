@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import T from "@/components/T";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = "force-dynamic";
+
 export default function NewGallery() {
     const router = useRouter();
     const [title, setTitle] = useState("");

@@ -8,6 +8,8 @@ import toast from "react-hot-toast";
 import T from "@/components/T";
 import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = "force-dynamic";
+
 export default function EditGallery({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const decodedId = decodeURIComponent(id);

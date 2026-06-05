@@ -13,6 +13,8 @@ export const DEFAULT_SPLIT = "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v
 
 const isVideo = (url: string) => !!url.match(/\.(mp4|webm|ogg)$/i);
 
+export const dynamic = "force-dynamic";
+
 export default function EditHomePageMedia() {
     const router = useRouter();
     const [articleId, setArticleId] = useState<string | null>(null);

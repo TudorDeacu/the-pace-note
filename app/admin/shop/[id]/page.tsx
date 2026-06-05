@@ -20,6 +20,8 @@ interface Product {
     images: string[] | null;
 }
 
+export const dynamic = "force-dynamic";
+
 export default function EditProduct() {
     const router = useRouter();
     const params = useParams();

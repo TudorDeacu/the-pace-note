@@ -12,6 +12,8 @@ interface Block {
     imageSide?: "left" | "right";
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function About() {
     const supabase = await createClient();
 

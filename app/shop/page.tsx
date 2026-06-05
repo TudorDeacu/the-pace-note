@@ -48,6 +48,8 @@ const DEMO_PRODUCTS: Product[] = [
     },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default function Shop() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);

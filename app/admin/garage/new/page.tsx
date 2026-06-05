@@ -17,6 +17,8 @@ const slugify = (text: string) => {
         .replace(/\-\-+/g, '-');  // Replace multiple - with single -
 };
 
+export const dynamic = "force-dynamic";
+
 export default function NewProject() {
     const router = useRouter();
     const [title, setTitle] = useState("");

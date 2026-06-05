@@ -46,6 +46,8 @@ interface Article {
     created_at: string;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const realSlug = decryptUrlParam(slug);

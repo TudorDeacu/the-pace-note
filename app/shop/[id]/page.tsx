@@ -54,6 +54,8 @@ const DEMO_PRODUCTS: Product[] = [
     },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default function ProductPage() {
     const params = useParams();
     const [product, setProduct] = useState<Product | null>(null);

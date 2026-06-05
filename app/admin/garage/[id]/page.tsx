@@ -11,6 +11,8 @@ import { decryptUrlParam } from "@/utils/encryption";
 import ConfirmModal from "@/components/ConfirmModal";
 import T from "@/components/T";
 
+export const dynamic = "force-dynamic";
+
 export default function EditProject() {
     const router = useRouter();
     const params = useParams();

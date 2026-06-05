@@ -12,6 +12,8 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { decryptUrlParam } from "@/utils/encryption";
 import T from "@/components/T";
 
+export const dynamic = "force-dynamic";
+
 export default function EditArticle() {
     const router = useRouter();
     const params = useParams();

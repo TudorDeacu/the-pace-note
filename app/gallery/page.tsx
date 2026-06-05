@@ -15,6 +15,8 @@ interface Gallery {
     created_at: string;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function GalleryPage() {
     const supabase = await createClient();
     let galleries: Gallery[] = [];

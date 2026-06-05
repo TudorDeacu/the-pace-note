@@ -8,6 +8,8 @@ import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import GalleryGrid from "@/components/GalleryGrid";
 
+export const dynamic = "force-dynamic";
+
 export default async function GalleryDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const decodedId = decodeURIComponent(id);

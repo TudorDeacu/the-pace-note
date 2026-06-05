@@ -3,6 +3,8 @@ import { createClient } from "@/utils/supabase/server";
 import { encryptUrlParam } from "@/utils/encryption";
 import T from "@/components/T";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminBlog() {
     const supabase = await createClient();
     const { data: articles } = await supabase

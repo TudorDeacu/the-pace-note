@@ -29,6 +29,8 @@ interface Order {
     items?: OrderItem[];
 }
 
+export const dynamic = "force-dynamic";
+
 export default function OrderDetails() {
     const params = useParams();
     const router = useRouter();

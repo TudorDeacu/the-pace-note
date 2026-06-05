@@ -5,6 +5,8 @@ import { createClient } from "@/utils/supabase/client";
 
 
 
+export const dynamic = "force-dynamic";
+
 export default function SeedPage() {
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState<string[]>([]);

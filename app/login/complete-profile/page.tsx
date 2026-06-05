@@ -10,6 +10,8 @@ import T from "@/components/T";
 import toast from "react-hot-toast";
 import { sendWelcomeEmailForRegistration } from "@/app/newsletter/actions";
 
+export const dynamic = "force-dynamic";
+
 export default function CompleteProfile() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();

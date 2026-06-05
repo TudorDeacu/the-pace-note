@@ -7,6 +7,8 @@ import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import T from "@/components/T";
 
+export const dynamic = "force-dynamic";
+
 export default function NewProduct() {
     const router = useRouter();
     const supabase = createClient();

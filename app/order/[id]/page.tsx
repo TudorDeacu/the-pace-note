@@ -31,6 +31,8 @@ interface Order {
     order_items?: OrderItem[];
 }
 
+export const dynamic = "force-dynamic";
+
 export default function OrderPage() {
     const params = useParams();
     const router = useRouter();

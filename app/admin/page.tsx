@@ -16,6 +16,8 @@ import {
     Cell
 } from "recharts";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
         productsCount: 0,

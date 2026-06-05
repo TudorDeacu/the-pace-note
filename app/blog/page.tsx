@@ -48,6 +48,8 @@ const DEMO_ARTICLES: Article[] = [
     },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function Blog() {
     const supabase = await createClient();
     let articles: Article[] = [];

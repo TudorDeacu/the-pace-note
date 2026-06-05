@@ -17,6 +17,8 @@ interface Project {
     image_url?: string;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function Garage() {
     const supabase = await createClient();
     let projects: Project[] = [];
