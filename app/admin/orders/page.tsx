@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
+import { encryptUrlParam } from "@/utils/encryption";
+import T from "@/components/T";
 
 export default async function AdminOrders() {
     const supabase = await createClient();
@@ -11,23 +13,23 @@ export default async function AdminOrders() {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Orders</h1>
+                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Comenzi</T></h1>
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
                 {!orders || orders.length === 0 ? (
                     <div className="p-8 text-center text-zinc-500 italic">
-                        No orders found.
+                        <T>Nu au fost găsite comenzi.</T>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-zinc-800">
                             <thead className="bg-zinc-800/50">
                                 <tr>
-                                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6 uppercase tracking-wider">Order ID</th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white uppercase tracking-wider">Date</th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white uppercase tracking-wider">Status</th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white uppercase tracking-wider">Total</th>
+                                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6 uppercase tracking-wider"><T>ID Comandă</T></th>
+                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white uppercase tracking-wider"><T>Dată</T></th>
+                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white uppercase tracking-wider"><T>Status</T></th>
+                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white uppercase tracking-wider"><T>Total</T></th>
                                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                         <span className="sr-only">View</span>
                                     </th>
@@ -57,8 +59,8 @@ export default async function AdminOrders() {
                                             {order.total_amount} {order.currency || 'RON'}
                                         </td>
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                            <Link href={`/admin/orders/${order.id}`} className="text-red-500 hover:text-red-400 uppercase tracking-widest font-bold text-xs">
-                                                View<span className="sr-only">, {order.id}</span>
+                                            <Link href={`/admin/orders/${encryptUrlParam(order.id)}`} className="text-red-500 hover:text-red-400 uppercase tracking-widest font-bold text-xs">
+                                                <T>Vezi</T><span className="sr-only">, {order.id}</span>
                                             </Link>
                                         </td>
                                     </tr>

@@ -9,10 +9,9 @@ import Link from "next/link";
 import { ArrowLeftIcon, MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import T from "@/components/T";
 
-import stickerPack from "../../images/sticker_pack.png";
-import tshirtBlack from "../../images/tshirt_black.png";
-import hoodiePaddock from "../../images/hoodie_paddock.png";
+
 
 interface Product {
     id: string;
@@ -33,7 +32,7 @@ const DEMO_PRODUCTS: Product[] = [
         description: "High quality vinyl stickers. Weatherproof and durable. Perfect for your car, helmet, or laptop. Includes 5 unique designs.",
         stock: 50,
         dimensions: "Various sizes (approx 5-10cm)",
-        images: [stickerPack],
+        images: [],
     },
     {
         id: "demo-2",
@@ -42,7 +41,7 @@ const DEMO_PRODUCTS: Product[] = [
         description: "Premium cotton blend t-shirt with minimalist TPN branding. Athletic fit, pre-shrunk, and designed for comfort in the paddock or on the street.",
         stock: 25,
         sizes: ["S", "M", "L", "XL", "XXL"],
-        images: [tshirtBlack],
+        images: [],
     },
     {
         id: "demo-3",
@@ -51,7 +50,7 @@ const DEMO_PRODUCTS: Product[] = [
         description: "Heavyweight charcoal hoodie. Ultra-soft interior, perfect for cold track days. Features embroidered logo and reinforced stitching.",
         stock: 15,
         sizes: ["S", "M", "L", "XL"],
-        images: [hoodiePaddock],
+        images: [],
     },
 ];
 
@@ -104,7 +103,7 @@ export default function ProductPage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <p className="text-white">Loading product...</p>
+                <p className="text-white"><T>Se încarcă produsul...</T></p>
             </div>
         );
     }
@@ -112,8 +111,8 @@ export default function ProductPage() {
     if (!product) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center flex-col gap-4">
-                <p className="text-white">Product not found.</p>
-                <Link href="/shop" className="text-red-500 hover:text-red-400">Back to Shop</Link>
+                <p className="text-white"><T>Produsul nu a fost găsit.</T></p>
+                <Link href="/shop" className="text-red-500 hover:text-red-400"><T>Înapoi la Magazin</T></Link>
             </div>
         );
     }
@@ -123,7 +122,7 @@ export default function ProductPage() {
             <Navbar />
             <main className="pt-32 px-6 lg:px-8 max-w-7xl mx-auto pb-20">
                 <Link href="/shop" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Shop
+                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Magazin</T>
                 </Link>
 
                 <div className="lg:grid lg:grid-cols-2 lg:gap-x-12">
@@ -138,7 +137,7 @@ export default function ProductPage() {
                                     className="h-full w-full object-cover object-center"
                                 />
                             ) : (
-                                <div className="h-full w-full flex items-center justify-center text-zinc-600">No Image</div>
+                                <div className="h-full w-full flex items-center justify-center text-zinc-600"><T>Fără imagine</T></div>
                             )}
                         </div>
                         {product.images && product.images.length > 1 && (
@@ -162,7 +161,7 @@ export default function ProductPage() {
                         <p className="text-2xl mt-4 font-medium text-red-500">{product.price} RON</p>
 
                         <div className="mt-8 border-t border-zinc-800 pt-8">
-                            <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest">Description</h3>
+                            <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest"><T>Descriere</T></h3>
                             <div className="mt-4 prose prose-invert">
                                 <p className="whitespace-pre-wrap">{product.description}</p>
                             </div>
@@ -170,7 +169,7 @@ export default function ProductPage() {
 
                         {product.dimensions && (
                             <div className="mt-8 border-t border-zinc-800 pt-8">
-                                <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest">Dimensions</h3>
+                                <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest"><T>Dimensiuni</T></h3>
                                 <p className="mt-2">{product.dimensions}</p>
                             </div>
                         )}
@@ -178,7 +177,7 @@ export default function ProductPage() {
                         <div className="mt-8 border-t border-zinc-800 pt-8">
                             {product.sizes && product.sizes.length > 0 && (
                                 <div className="mb-6">
-                                    <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest mb-3">Select Size</h3>
+                                    <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest mb-3"><T>Selectează Mărimea</T></h3>
                                     <div className="flex gap-3">
                                         {product.sizes.map((size) => (
                                             <button
@@ -197,7 +196,7 @@ export default function ProductPage() {
                             )}
 
                             <div className="mb-6">
-                                <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest mb-3">Quantity</h3>
+                                <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-widest mb-3"><T>Cantitate</T></h3>
                                 <div className="flex items-center gap-4">
                                     <div className="flex items-center rounded bg-zinc-900">
                                         <button
@@ -215,7 +214,7 @@ export default function ProductPage() {
                                         </button>
                                     </div>
                                     <p className="text-sm text-zinc-500">
-                                        {product.stock} available
+                                        {product.stock} <T>bucăți pe stoc</T>
                                     </p>
                                 </div>
                             </div>
@@ -230,7 +229,7 @@ export default function ProductPage() {
                                 }
                             }}
                         >
-                            {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                            {product.stock > 0 ? <T>Adaugă în coș</T> : <T>Stoc epuizat</T>}
                         </button>
                     </div>
                 </div>

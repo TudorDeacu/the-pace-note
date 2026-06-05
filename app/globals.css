@@ -3,6 +3,13 @@
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-red-300: #e9482f;
+  --color-red-400: #e9482f;
+  --color-red-500: #e9482f;
+  --color-red-600: #e9482f;
+  --color-red-700: #e9482f;
+  --color-red-800: #e9482f;
+  --color-red-900: #e9482f;
 }
 
 :root {

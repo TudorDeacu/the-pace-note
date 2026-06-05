@@ -10,10 +10,7 @@ export default function Terms() {
 
             <main className="max-w-4xl mx-auto px-6 py-24 sm:py-32 lg:px-8 text-zinc-300">
                 <div className="mx-auto max-w-2xl text-center mb-16">
-                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase tracking-widest"><T>Termeni și Condiții</T></h2>
-                    <p className="mt-4 text-sm leading-8 text-zinc-500 uppercase tracking-widest">
-                        <T>Ultima actualizare:</T> {new Date().toLocaleDateString('ro-RO', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    </p>
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl uppercase tracking-widest"><T>Termene si conditii</T></h2>
                 </div>
 
                 <div className="space-y-16 leading-relaxed">
@@ -41,7 +38,6 @@ export default function Terms() {
                         <div>
                             <h3 className="text-lg font-bold text-white mb-2"><T>3. Contul de Utilizator</T></h3>
                             <ul className="list-disc pl-5 space-y-2">
-                                <li><T>Crearea contului: Pentru a lăsa comentarii sau a face cumpărături mai ușor, utilizatorii își pot crea un cont. Vârsta minimă pentru crearea unui cont este de 16 ani.</T></li>
                                 <li><T>Securitate: Utilizatorul este responsabil pentru păstrarea confidențialității parolei. Orice activitate desfășurată de pe contul tău este responsabilitatea ta.</T></li>
                                 <li><T>Ștergerea contului: Ne rezervăm dreptul de a suspenda sau șterge conturile care încalcă acești Termeni și Condiții (ex: spam, limbaj inadecvat). Utilizatorul poate solicita oricând ștergerea contului.</T></li>
                             </ul>
@@ -65,13 +61,13 @@ export default function Terms() {
                                 <li><T>Plata: Plata se poate face online cu cardul sau prin ramburs la curier.</T></li>
                             </ul>
                         </div>
-
+                        {/* 
                         <div>
                             <h3 className="text-lg font-bold text-white mb-2"><T>6. Livrare</T></h3>
                             <ul className="list-disc pl-5 space-y-2">
                                 <li><T>Expediere: Produsele vor fi livrate prin curierat rapid în termen de 2-4 zile lucrătoare.</T></li>
                             </ul>
-                        </div>
+                        </div>*/}
 
                         <div>
                             <h3 className="text-lg font-bold text-white mb-2"><T>7. Limitarea Răspunderii</T></h3>

@@ -3,50 +3,52 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { TrashIcon, ArrowUpIcon, ArrowDownIcon, PhotoIcon, Bars3BottomLeftIcon, ArrowsRightLeftIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-
-type BlockType = "paragraph" | "heading" | "image" | "image-text";
-
-interface Block {
-    id: string;
-    type: BlockType;
-    content: string; // For image-text, this will be the text content
-    imageUrl?: string; // For image and image-text
-    caption?: string;
-    imageSide?: "left" | "right"; // For image-text
-}
+import BlockEditor, { Block } from "@/components/BlockEditor";
+import { updateArticle } from "@/app/admin/actions";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
+import { decryptUrlParam } from "@/utils/encryption";
+import T from "@/components/T";
 
 export default function EditArticle() {
     const router = useRouter();
     const params = useParams();
     const [title, setTitle] = useState("");
     const [excerpt, setExcerpt] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const supabase = createClient();
+    const [isPublished, setIsPublished] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    
+    // Crucial: Memoize the Supabase Client to prevent recreation dropping active network requests and causing browser lock deadlocks
+    const [supabase] = useState(() => createClient());
 
     useEffect(() => {
         async function fetchArticle() {
             if (!params?.id) return;
+            const realId = decryptUrlParam(params.id as string);
             const { data, error } = await supabase
                 .from('articles')
                 .select('*')
-                .eq('id', params.id)
+                .eq('id', realId)
                 .single();
 
             if (data) {
                 setTitle(data.title);
+                if (data.content?.excerpt) setExcerpt(data.content.excerpt);
+                if (data.content?.image_url) setImageUrl(data.content.image_url);
+                
                 if (data.content?.blocks) {
                     setBlocks(data.content.blocks);
                 }
-                if (data.content?.excerpt) {
-                    setExcerpt(data.content.excerpt);
-                }
             } else {
                 console.error("Error loading article:", error);
-                alert("Article not found");
+                toast.error("Article not found");
                 router.push("/admin/blog");
             }
             setLoading(false);
@@ -55,121 +57,112 @@ export default function EditArticle() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params?.id]);
 
-    const addBlock = (type: BlockType) => {
-        const newBlock: Block = {
-            id: crypto.randomUUID(),
-            type,
-            content: "",
-            imageUrl: type === "image" || type === "image-text" ? "" : undefined,
-            caption: type === "image" || type === "image-text" ? "" : undefined,
-            imageSide: type === "image-text" ? "left" : undefined,
-        };
-        setBlocks([...blocks, newBlock]);
-    };
-
-    const updateBlock = (id: string, field: keyof Block, value: string) => {
-        setBlocks(blocks.map(b => b.id === id ? { ...b, [field]: value } : b));
-    };
-
-    const removeBlock = (id: string) => {
-        setBlocks(blocks.filter(b => b.id !== id));
-    };
-
-    const moveBlock = (index: number, direction: -1 | 1) => {
-        if ((direction === -1 && index === 0) || (direction === 1 && index === blocks.length - 1)) return;
-        const newBlocks = [...blocks];
-        const temp = newBlocks[index];
-        newBlocks[index] = newBlocks[index + direction];
-        newBlocks[index + direction] = temp;
-        setBlocks(newBlocks);
-    };
-
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-        if (!e.target.files || e.target.files.length === 0) return;
-        const file = e.target.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `${fileName}`;
-
-        setLoading(true);
-        const { error: uploadError } = await supabase.storage
-            .from('blogs')
-            .upload(filePath, file);
-
-        if (uploadError) {
-            alert('Error uploading image: ' + uploadError.message);
-            setLoading(false);
-            return;
+    const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploadingImage(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `thumbnail-${Date.now()}.${fileExt}`;
+            const { error } = await supabase.storage.from('blogs').upload(fileName, file);
+            if (error) throw error;
+            const { data } = supabase.storage.from('blogs').getPublicUrl(fileName);
+            setImageUrl(data.publicUrl);
+        } catch (err: any) {
+            toast.error("Eroare la încărcarea imaginii: " + err.message);
+        } finally {
+            setUploadingImage(false);
         }
-
-        const { data } = supabase.storage.from('blogs').getPublicUrl(filePath);
-        updateBlock(id, "imageUrl", data.publicUrl);
-        setLoading(false);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
 
-        const { error } = await supabase
-            .from('articles')
-            .update({
+        try {
+            if (!title.trim()) {
+                throw new Error("Title is required");
+            }
+            if (!params?.id) throw new Error("Article ID is missing");
+            const realId = decryptUrlParam(params.id as string);
+
+            const result = await updateArticle(realId, {
                 title,
-                content: { blocks, excerpt },
-            })
-            .eq('id', params?.id);
+                content: { blocks, excerpt, image_url: imageUrl },
+            });
 
-        if (error) {
-            console.error(error);
-            alert("Error updating article: " + error.message);
+            if (result.error) {
+                console.error("Action error:", result.error);
+                throw new Error(result.error);
+            }
+            
+            setIsPublished(true);
+            toast.success("Articol salvat cu succes!");
+            setTimeout(() => {
+                router.push("/admin/blog");
+                router.refresh();
+            }, 1000);
+            
+            
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Eroare la salvarea articolului: " + err.message);
             setSaving(false);
-        } else {
-            router.push("/admin/blog");
         }
     };
 
-    const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this article? This action cannot be undone.")) return;
-
+    const executeDelete = async () => {
         setSaving(true);
-        const { error } = await supabase
-            .from('articles')
-            .delete()
-            .eq('id', params?.id);
+        setIsDeleteModalOpen(false);
+        try {
+            const realId = decryptUrlParam(params?.id as string);
+            const { error } = await supabase
+                .from('articles')
+                .delete()
+                .eq('id', realId);
 
-        if (error) {
-            alert("Error deleting article: " + error.message);
-            setSaving(false);
-        } else {
+            if (error) {
+                console.error("Supabase delete error:", error);
+                toast.error("Eroare la ștergere: " + error.message);
+                setSaving(false);
+                return;
+            }
+            
+            toast.success("Articol șters!");
             router.push("/admin/blog");
+            router.refresh();
+            
+        } catch (err: any) {
+            toast.error("Eroare neașteptată la ștergere: " + err.message);
+            setSaving(false);
         }
     };
 
-    if (loading) return <div className="text-white">Loading...</div>;
+    if (loading) return <div className="text-white p-8"><T>Se încarcă...</T></div>;
 
     return (
         <div className="max-w-4xl mx-auto pb-20">
             <Link href="/admin/blog" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Blog
+                <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Blog</T>
             </Link>
 
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit Article</h1>
+                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Editează Articolul</T></h1>
                 <div className="flex gap-4">
                     <button
                         type="button"
-                        onClick={handleDelete}
+                        onClick={() => setIsDeleteModalOpen(true)}
                         disabled={saving}
                         className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
                     >
-                        <TrashIcon className="w-5 h-5" /> Delete
+                        <TrashIcon className="w-5 h-5" /> <T>Șterge</T>
                     </button>
                     <button
                         onClick={handleSubmit}
-                        disabled={saving}
-                        className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
+                        disabled={saving || isPublished || uploadingImage}
+                        className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-all disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Update"}
+                        {isPublished ? <T>Publicat!</T> : saving ? <T>Se salvează...</T> : <T>Salvează Modificările</T>}
                     </button>
                 </div>
             </div>
@@ -178,7 +171,7 @@ export default function EditArticle() {
                 {/* Meta Inputs */}
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Article Title</label>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Titlu Articol</T></label>
                         <input
                             type="text"
                             value={title}
@@ -188,7 +181,26 @@ export default function EditArticle() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Excerpt</label>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Imagine Miniatură</T></label>
+                        <div className="flex gap-4 items-center">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleThumbnailUpload}
+                                disabled={uploadingImage}
+                                className="block w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 transition-colors"
+                            />
+                            {uploadingImage && <span className="text-zinc-500 text-sm"><T>Se încarcă...</T></span>}
+                        </div>
+                        {imageUrl && (
+                            <div className="mt-4">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={imageUrl} alt="Thumbnail preview" className="w-full max-w-sm rounded-lg object-cover" />
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Rezumat</T></label>
                         <textarea
                             value={excerpt}
                             onChange={(e) => setExcerpt(e.target.value)}
@@ -199,157 +211,17 @@ export default function EditArticle() {
                     </div>
                 </div>
 
-                {/* Blocks Editor */}
-                <div className="space-y-4">
-                    {blocks.map((block, index) => (
-                        <div key={block.id} className="group relative bg-zinc-900 border border-zinc-800 rounded-lg p-4 transition-all hover:border-zinc-700">
-                            {/* Block Controls (Absolute) */}
-                            <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                <button onClick={() => moveBlock(index, -1)} className="p-1.5 text-zinc-400 hover:text-white bg-black/50 rounded" title="Move Up">
-                                    <ArrowUpIcon className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => moveBlock(index, 1)} className="p-1.5 text-zinc-400 hover:text-white bg-black/50 rounded" title="Move Down">
-                                    <ArrowDownIcon className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => removeBlock(block.id)} className="p-1.5 text-red-500 hover:text-red-400 bg-black/50 rounded" title="Delete">
-                                    <TrashIcon className="w-4 h-4" />
-                                </button>
-                            </div>
-
-                            {/* Block Content Input */}
-                            <div className="mr-8">
-                                {block.type === "heading" && (
-                                    <input
-                                        type="text"
-                                        value={block.content}
-                                        onChange={(e) => updateBlock(block.id, "content", e.target.value)}
-                                        className="w-full bg-transparent text-white text-2xl font-bold outline-none placeholder:text-zinc-600"
-                                        placeholder="Heading..."
-                                    />
-                                )}
-                                {block.type === "paragraph" && (
-                                    <textarea
-                                        value={block.content}
-                                        onChange={(e) => updateBlock(block.id, "content", e.target.value)}
-                                        rows={Math.max(3, block.content.split('\n').length)}
-                                        className="w-full bg-transparent text-zinc-300 outline-none resize-none placeholder:text-zinc-600"
-                                        placeholder="Write your paragraph here..."
-                                    />
-                                )}
-                                {block.type === "image" && (
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-zinc-800 rounded">
-                                                <PhotoIcon className="w-6 h-6 text-zinc-400" />
-                                            </div>
-                                            <input
-                                                type="url"
-                                                value={block.imageUrl || ""}
-                                                onChange={(e) => updateBlock(block.id, "imageUrl", e.target.value)}
-                                                className="flex-1 bg-black/50 border border-zinc-800 rounded p-2 text-white text-sm outline-none focus:border-red-600"
-                                                placeholder="Image URL (e.g., https://...)"
-                                            />
-                                            <label className="cursor-pointer bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition flex items-center gap-2 text-sm font-semibold whitespace-nowrap">
-                                                <span>Upload</span>
-                                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, block.id)} />
-                                            </label>
-                                        </div>
-                                        {block.imageUrl && (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={block.imageUrl} alt="Preview" className="max-h-64 rounded bg-black/20" />
-                                        )}
-                                        <input
-                                            type="text"
-                                            value={block.caption || ""}
-                                            onChange={(e) => updateBlock(block.id, "caption", e.target.value)}
-                                            className="w-full bg-transparent text-zinc-500 text-sm outline-none text-center italic"
-                                            placeholder="Image caption (optional)..."
-                                        />
-                                    </div>
-                                )}
-                                {block.type === "image-text" && (
-                                    <div className="flex flex-col gap-4">
-                                        <div className="flex items-center gap-4 border-b border-zinc-800 pb-4 mb-2">
-                                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Layout:</span>
-                                            <button
-                                                onClick={() => updateBlock(block.id, "imageSide", "left")}
-                                                className={`px-3 py-1 text-xs rounded uppercase font-bold tracking-wider transition-colors ${block.imageSide === "left" ? "bg-red-600 text-white" : "bg-black/50 text-zinc-400 hover:text-white"}`}
-                                            >
-                                                Image Left
-                                            </button>
-                                            <button
-                                                onClick={() => updateBlock(block.id, "imageSide", "right")}
-                                                className={`px-3 py-1 text-xs rounded uppercase font-bold tracking-wider transition-colors ${block.imageSide === "right" ? "bg-red-600 text-white" : "bg-black/50 text-zinc-400 hover:text-white"}`}
-                                            >
-                                                Image Right
-                                            </button>
-                                        </div>
-
-                                        <div className={`flex flex-col md:flex-row gap-6 ${block.imageSide === "right" ? "md:flex-row-reverse" : ""}`}>
-                                            <div className="flex-1 space-y-3">
-                                                <div className="flex items-center gap-2">
-                                                    <PhotoIcon className="w-5 h-5 text-zinc-400" />
-                                                    <input
-                                                        type="url"
-                                                        value={block.imageUrl || ""}
-                                                        onChange={(e) => updateBlock(block.id, "imageUrl", e.target.value)}
-                                                        className="w-full bg-black/50 border border-zinc-800 rounded p-2 text-white text-sm outline-none focus:border-red-600"
-                                                        placeholder="Image URL..."
-                                                    />
-                                                    <label className="cursor-pointer bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition flex items-center gap-2 text-sm font-semibold whitespace-nowrap">
-                                                        <span>Upload</span>
-                                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, block.id)} />
-                                                    </label>
-                                                </div>
-                                                {block.imageUrl ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img src={block.imageUrl} alt="Preview" className="w-full rounded bg-black/20 object-cover" />
-                                                ) : (
-                                                    <div className="w-full aspect-video bg-black/20 rounded border border-zinc-800 border-dashed flex items-center justify-center text-zinc-600 text-sm">
-                                                        No image
-                                                    </div>
-                                                )}
-                                                <input
-                                                    type="text"
-                                                    value={block.caption || ""}
-                                                    onChange={(e) => updateBlock(block.id, "caption", e.target.value)}
-                                                    className="w-full bg-transparent text-zinc-500 text-xs outline-none text-center italic"
-                                                    placeholder="Caption..."
-                                                />
-                                            </div>
-                                            <div className="flex-1">
-                                                <textarea
-                                                    value={block.content}
-                                                    onChange={(e) => updateBlock(block.id, "content", e.target.value)}
-                                                    rows={8}
-                                                    className="w-full h-full bg-black/20 border border-zinc-800 rounded p-4 text-zinc-300 outline-none resize-none placeholder:text-zinc-600 focus:border-red-600"
-                                                    placeholder="Write your text here..."
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Add Block Menu */}
-                <div className="flex gap-4 justify-center py-8 border-t border-zinc-900 border-dashed">
-                    <button onClick={() => addBlock("heading")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <span className="font-bold text-lg">H</span> Heading
-                    </button>
-                    <button onClick={() => addBlock("paragraph")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <Bars3BottomLeftIcon className="w-5 h-5" /> Paragraph
-                    </button>
-                    <button onClick={() => addBlock("image")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <PhotoIcon className="w-5 h-5" /> Image
-                    </button>
-                    <button onClick={() => addBlock("image-text")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <ArrowsRightLeftIcon className="w-5 h-5" /> Split (Img+Txt)
-                    </button>
-                </div>
+                <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
             </div>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                title="Șterge Articolul"
+                description="Atenție! Această acțiune este permanentă și articolul va fi ireversibil șters din baza de date."
+                confirmText="ȘTERGE DEFINITIV"
+                onConfirm={executeDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
         </div>
     );
 }

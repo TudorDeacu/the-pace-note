@@ -1,233 +1,117 @@
-"use client";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Link from "next/link";
+import T from "@/components/T";
+import { createClient } from "@/utils/supabase/server";
 
-import Image from "next/image";
+export const dynamic = "force-dynamic";
 
-export default function Home() {
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#000",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-        overflow: "hidden",
-        fontFamily: "'Arial Black', 'Arial Bold', Arial, sans-serif",
-        padding: "2rem",
-      }}
-    >
-      {/* Subtle radial glow behind content */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "800px",
-          height: "800px",
-          background:
-            "radial-gradient(ellipse at center, rgba(233,72,47,0.12) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
+const isVideo = (url: string) => !!url.match(/\.(mp4|webm|ogg)$/i);
 
-      {/* Thin top accent line */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "#E9482F",
-        }}
-      />
+export default async function Home() {
+    const supabase = await createClient();
+    const { data } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('slug', 'page-home')
+        .single();
 
-      {/* Content */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "2.5rem",
-          position: "relative",
-          zIndex: 1,
-          maxWidth: "700px",
-          width: "100%",
-        }}
-      >
-        {/* Logo */}
-        <div style={{ opacity: 0.95 }}>
-          <Image
-            src="/icon.png"
-            alt="The Pace Note Logo"
-            width={80}
-            height={80}
-            style={{ objectFit: "contain" }}
-          />
+    // Default Fallbacks
+    const heroMedia = data?.content?.heroMedia || "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v1/object/public/other/ultrace_gatti.jpeg";
+    const visionMedia = data?.content?.visionMedia || "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v1/object/public/other/visiontpn.jpeg";
+    const splitMedia = data?.content?.splitMedia || "https://zlcqqmcvbhixcmeapofz.supabase.co/storage/v1/object/public/other/home_gif.mp4";
+
+    return (
+        <div className="min-h-screen bg-black">
+            <Navbar />
+
+            <main>
+                {/* Hero Section */}
+                <div className="relative isolate px-6 pt-14 lg:px-8 h-screen flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-0 -z-10 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-black via-zinc-900 to-black opacity-80 z-[-15]" />
+                        {isVideo(heroMedia) ? (
+                            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-20 opacity-60 mix-blend-overlay grayscale" src={heroMedia}></video>
+                        ) : (
+                            <div className="absolute inset-0 bg-cover bg-center -z-20 opacity-60 mix-blend-overlay grayscale" style={{ backgroundImage: `url('${heroMedia}')` }}></div>
+                        )}
+                    </div>
+                    <div className="mx-auto max-w-2xl py-24 sm:py-48 lg:py-56 text-center">
+                        <h1 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter text-white uppercase italic transform -skew-x-12">
+                            The Pace Note
+                        </h1>
+                        <div className="mt-10 flex items-center justify-center gap-x-6">
+                            <Link
+                                href="/blog"
+                                className="rounded-none bg-[#e9482f] px-8 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-red-500 hover:scale-105 transition-all uppercase tracking-widest"
+                            >
+                                <T>Citește Blogul</T>
+                            </Link>
+                            <Link href="/about" className="text-sm font-semibold leading-6 text-white uppercase tracking-widest hover:text-red-500 transition-colors">
+                                <T>Despre Noi</T> <span aria-hidden="true">→</span>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Viziune Section */}
+                <div className="bg-black py-16 sm:py-24 md:py-32 border-y border-zinc-900">
+                    <div className="mx-auto max-w-7xl px-6 lg:px-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div>
+                                <h2 className="text-3xl font-bold tracking-tight text-white sm:text-5xl uppercase mb-6">
+                                    <T>Viziune</T>
+                                </h2>
+                                <div className="prose prose-invert lg:prose-xl">
+                                    <p className="text-zinc-300 leading-relaxed text-justify">
+                                        <T>Viziunea noastră este de a contribui la formarea unei culturi în care motorsportul românesc este perceput și respectat la nivelul lui real, un sport complex, tehnic și profund disciplinat. Ne dorim ca The Pace Note să devină un reper de credibilitate și rigoare.</T>
+                                    </p>
+                                    <p className="text-zinc-400 mt-4 text-justify">
+                                        <T>Nu vrem să fim doar o voce; vrem să fie standardul care arată ce se poate și ce ar trebui să fie.</T>
+                                    </p>
+                                </div>
+                            </div>
+                            {/* Abstract/Texture Image Placeholder */}
+                            <div className="relative h-64 lg:h-full min-h-[400px] bg-zinc-900 overflow-hidden">
+                                {isVideo(visionMedia) ? (
+                                    <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale" src={visionMedia}></video>
+                                ) : (
+                                    <div className="absolute inset-0 bg-cover bg-center opacity-50 grayscale" style={{ backgroundImage: `url('${visionMedia}')` }}></div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Orange Tainted Dreams Banner */}
+                <div className="bg-black w-full py-8 md:py-12 px-4 flex items-center justify-center border-b border-zinc-900">
+                    <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter text-center">
+                        Orange Tainted <span className="text-transparent bg-clip-text bg-[#e9482f]">Dreams</span>
+                    </h2>
+                </div>
+
+                {/* Split Section: Image & Despre Noi */}
+                <div className="grid grid-cols-1 md:grid-cols-2 min-h-[600px]">
+                    <div className="relative h-96 md:h-auto bg-zinc-900 overflow-hidden">
+                        {isVideo(splitMedia) ? (
+                            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover grayscale" src={splitMedia}></video>
+                        ) : (
+                            <div className="absolute inset-0 bg-cover bg-center grayscale" style={{ backgroundImage: `url('${splitMedia}')` }}></div>
+                        )}
+                    </div>
+                    <div className="bg-[#e9482f] p-8 md:p-12 lg:p-24 flex flex-col justify-center">
+                        <h2 className="text-white text-3xl md:text-4xl font-bold uppercase mb-8 whitespace-pre-line"><T>Povestea Noastră</T></h2>
+                        <p className="text-white/90 text-base md:text-lg leading-relaxed mb-8 font-medium">
+                            <T>The Pace Note urmărește motorsportul românesc dintr-o poziție pe care puțini o văd și și mai puțini o înțeleg. Nu explicăm, nu traducem, nu facem spectacol. Observăm. Selectăm. Notăm.</T>
+                        </p>
+                        <Link href="/about" className="inline-block bg-white text-red-600 px-8 py-3 font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all text-center w-fit">
+                            <T>Citește Mai Mult</T>
+                        </Link>
+                    </div>
+                </div>
+            </main>
+
+            <Footer />
         </div>
-
-        {/* Brand name */}
-        <div style={{ textAlign: "center" }}>
-          <p
-            style={{
-              color: "#E9482F",
-              fontSize: "clamp(0.65rem, 1.2vw, 0.8rem)",
-              fontWeight: 900,
-              letterSpacing: "0.35em",
-              textTransform: "uppercase",
-              margin: "0 0 1.2rem 0",
-              fontFamily: "Arial, sans-serif",
-            }}
-          >
-            The Pace Note
-          </p>
-
-          {/* Main headline */}
-          <h1
-            style={{
-              color: "#E9482F",
-              fontSize: "clamp(2.5rem, 8vw, 6rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.03em",
-              textTransform: "uppercase",
-              fontStyle: "italic",
-              margin: 0,
-              lineHeight: 0.9,
-            }}
-          >
-            ÎN
-            <br />
-            CURÂND
-          </h1>
-        </div>
-
-        {/* Divider */}
-        <div
-          style={{
-            width: "60px",
-            height: "2px",
-            background: "#E9482F",
-            opacity: 0.5,
-          }}
-        />
-
-        {/* Tagline */}
-        <p
-          style={{
-            color: "rgba(255,255,255,0.45)",
-            fontSize: "clamp(0.75rem, 1.5vw, 0.9rem)",
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            textAlign: "center",
-            margin: 0,
-            fontFamily: "Arial, sans-serif",
-            fontWeight: 400,
-          }}
-        >
-          Orange Tainted Dreams
-        </p>
-
-        {/* Social Links */}
-        <div
-          style={{
-            display: "flex",
-            gap: "2rem",
-            alignItems: "center",
-            marginTop: "0.5rem",
-          }}
-        >
-          {[
-            {
-              label: "Instagram",
-              href: "https://www.instagram.com/thepacenote/",
-              icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                </svg>
-              ),
-            },
-            {
-              label: "Facebook",
-              href: "https://www.facebook.com/profile.php?id=61583479544402",
-              icon: (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-                </svg>
-              ),
-            },
-            {
-              label: "YouTube",
-              href: "https://www.youtube.com/channel/UC1hSXkxGPGsaXFuNtKLIjvA",
-              icon: (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
-                  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#000"/>
-                </svg>
-              ),
-            },
-          ].map(({ label, href, icon }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              title={label}
-              style={{
-                color: "rgba(255,255,255,0.35)",
-                transition: "color 0.2s ease, transform 0.2s ease",
-                display: "flex",
-                alignItems: "center",
-                textDecoration: "none",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "#E9482F";
-                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.35)";
-                (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
-              }}
-            >
-              {icon}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom thin line */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "#E9482F",
-          opacity: 0.3,
-        }}
-      />
-
-      {/* Copyright */}
-      <p
-        style={{
-          position: "absolute",
-          bottom: "20px",
-          color: "rgba(255,255,255,0.15)",
-          fontSize: "0.65rem",
-          letterSpacing: "0.15em",
-          textTransform: "uppercase",
-          fontFamily: "Arial, sans-serif",
-          margin: 0,
-        }}
-      >
-        © {new Date().getFullYear()} The Pace Note
-      </p>
-    </main>
-  );
+    );
 }

@@ -8,16 +8,16 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import logo from "../app/images/logo.png";
 import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext";
-import CartDrawer from "./CartDrawer";
-import LanguageToggle from "./LanguageToggle";
+// import { useCart } from "@/context/CartContext";
+// import CartDrawer from "./CartDrawer";
+// import LanguageToggle from "./LanguageToggle";
 import T from "./T";
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { isAuthenticated, isAdmin } = useAuth();
     const pathname = usePathname();
-    const { cartCount, setCartOpen } = useCart();
+    // const { cartCount, setCartOpen } = useCart();
 
     // Filter out "Account" from main nav if not authenticated, or keep it and let it redirect to login?
     // Usually "Account" in nav is fine, page handles redirect. But we can make it dynamic.
@@ -29,15 +29,11 @@ export default function Navbar() {
         { name: "Acasă", href: "/" },
         { name: "Blog", href: "/blog" },
         { name: "Garaj", href: "/garage" },
-        { name: "Magazin", href: "/shop" },
+        { name: "Galerie", href: "/gallery" },
     ];
 
-    if (isAuthenticated) {
-        navigation.push({ name: "Cont", href: "/account" });
-    }
-
     return (
-        <header className="bg-black text-white selection:bg-red-600 fixed w-full z-50 border-b border-zinc-900/50 backdrop-blur-md bg-black/80">
+        <header className="bg-black text-white selection:bg-red-600 fixed w-full z-50 border-b border-zinc-900/50 bg-black">
             <nav
                 className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
                 aria-label="Global"
@@ -80,7 +76,16 @@ export default function Navbar() {
 
                     {/* Auth Links */}
                     {isAuthenticated ? (
-                        <>
+                        <div className="flex items-center gap-6">
+                            <Link
+                                href="/account"
+                                className={`text-sm font-semibold leading-6 transition-colors uppercase tracking-widest ${pathname === "/account"
+                                    ? "text-orange-500"
+                                    : "text-zinc-300 hover:text-white hover:text-red-500"
+                                    }`}
+                            >
+                                <T>Cont</T>
+                            </Link>
                             {isAdmin && (
                                 <Link
                                     href="/admin"
@@ -92,7 +97,7 @@ export default function Navbar() {
                                     <T>Admin</T>
                                 </Link>
                             )}
-                        </>
+                        </div>
                     ) : (
                         <Link
                             href="/login"
@@ -101,10 +106,11 @@ export default function Navbar() {
                                 : "text-zinc-300 hover:text-white hover:text-red-500"
                                 }`}
                         >
-                            <T>Logare</T>
+                            <T>Login</T>
                         </Link>
                     )}
-                    <LanguageToggle />
+                    {/* <LanguageToggle /> */}
+                    {/* 
                     <button
                         onClick={() => setCartOpen(true)}
                         className="text-sm font-semibold leading-6 text-zinc-300 hover:text-red-500 transition-colors ml-4 relative"
@@ -116,6 +122,7 @@ export default function Navbar() {
                             </span>
                         )}
                     </button>
+                    */}
                 </div>
             </nav>
             <Dialog
@@ -127,14 +134,15 @@ export default function Navbar() {
                 <div className="fixed inset-0 z-50 bg-black/90" />
                 <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-black px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10 text-white">
                     <div className="flex items-center justify-between">
-                        <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-3">
+                        <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-4 focus:outline-none">
                             <span className="sr-only">The Pace Note</span>
                             <Image
                                 src={logo}
                                 alt="The Pace Note"
-                                className="h-8 w-auto"
+                                className="h-10 w-auto"
+                                priority
                             />
-                            <span className="font-bold text-lg uppercase tracking-tighter">The Pace Note</span>
+                            <span className="text-xl font-bold uppercase tracking-tighter text-white">The Pace Note</span>
                         </Link>
                         <button
                             type="button"
@@ -165,6 +173,16 @@ export default function Navbar() {
                                 {/* Mobile Auth Links */}
                                 {isAuthenticated ? (
                                     <>
+                                        <Link
+                                            href="/account"
+                                            className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 transition-colors uppercase tracking-widest hover:bg-zinc-900 ${pathname === "/account"
+                                                ? "text-orange-500"
+                                                : "text-zinc-100 hover:text-red-500"
+                                                }`}
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            <T>Cont</T>
+                                        </Link>
                                         {isAdmin && (
                                             <Link
                                                 href="/admin"
@@ -191,14 +209,14 @@ export default function Navbar() {
                                     </Link>
                                 )}
                                 <div className="-mx-3 block rounded-lg px-3 py-2">
-                                    <LanguageToggle />
+                                    {/* <LanguageToggle /> */}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </DialogPanel>
             </Dialog>
-            <CartDrawer />
+            {/* <CartDrawer /> */}
         </header>
     );
 }

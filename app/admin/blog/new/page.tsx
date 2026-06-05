@@ -2,20 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TrashIcon, ArrowUpIcon, ArrowDownIcon, PhotoIcon, Bars3BottomLeftIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
-
-type BlockType = "paragraph" | "heading" | "image" | "image-text";
-
-interface Block {
-    id: string;
-    type: BlockType;
-    content: string; // For image-text, this will be the text content
-    imageUrl?: string; // For image and image-text
-    caption?: string;
-    imageSide?: "left" | "right"; // For image-text
-}
-
 import { createClient } from "@/utils/supabase/client";
+import BlockEditor, { Block } from "@/components/BlockEditor";
+import { submitArticle } from "@/app/admin/actions";
+import toast from "react-hot-toast";
 
 // Simple slugify function
 const slugify = (text: string) => {
@@ -31,87 +21,69 @@ const slugify = (text: string) => {
 export default function NewArticle() {
     const router = useRouter();
     const [title, setTitle] = useState("");
-    const [excerpt, setExcerpt] = useState(""); // Note: Excerpt is not in schema directly, maybe store in content or ignore? 
-    // Schema: title, slug, content (jsonb), published (bool)
-    // I should probably add excerpt to schema if needed, or put it in the first block or meta.
-    // For now I will ignore excerpt or add it to content object.
+    const [excerpt, setExcerpt] = useState(""); 
+    const [imageUrl, setImageUrl] = useState("");
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [loading, setLoading] = useState(false);
-    const supabase = createClient();
+    const [isPublished, setIsPublished] = useState(false);
+    const [notifySubscribers, setNotifySubscribers] = useState(true);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    
+    // Crucial: Memoize the Supabase Client to prevent recreation dropping active network requests and causing browser lock deadlocks
+    const [supabase] = useState(() => createClient());
 
-    const addBlock = (type: BlockType) => {
-        const newBlock: Block = {
-            id: crypto.randomUUID(),
-            type,
-            content: "",
-            imageUrl: type === "image" || type === "image-text" ? "" : undefined,
-            caption: type === "image" || type === "image-text" ? "" : undefined,
-            imageSide: type === "image-text" ? "left" : undefined,
-        };
-        setBlocks([...blocks, newBlock]);
-    };
-
-    const updateBlock = (id: string, field: keyof Block, value: string) => {
-        setBlocks(blocks.map(b => b.id === id ? { ...b, [field]: value } : b));
-    };
-
-    const removeBlock = (id: string) => {
-        setBlocks(blocks.filter(b => b.id !== id));
-    };
-
-    const moveBlock = (index: number, direction: -1 | 1) => {
-        if ((direction === -1 && index === 0) || (direction === 1 && index === blocks.length - 1)) return;
-        const newBlocks = [...blocks];
-        const temp = newBlocks[index];
-        newBlocks[index] = newBlocks[index + direction];
-        newBlocks[index + direction] = temp;
-        setBlocks(newBlocks);
-    };
-
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-        if (!e.target.files || e.target.files.length === 0) return;
-        const file = e.target.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `${fileName}`;
-
-        setLoading(true);
-        const { error: uploadError } = await supabase.storage
-            .from('blogs')
-            .upload(filePath, file);
-
-        if (uploadError) {
-            alert('Error uploading image: ' + uploadError.message);
-            setLoading(false);
-            return;
+    const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploadingImage(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `thumbnail-${Date.now()}.${fileExt}`;
+            const { error } = await supabase.storage.from('blogs').upload(fileName, file);
+            if (error) throw error;
+            const { data } = supabase.storage.from('blogs').getPublicUrl(fileName);
+            setImageUrl(data.publicUrl);
+        } catch (err: any) {
+            toast.error("Eroare la încărcarea imaginii: " + err.message);
+        } finally {
+            setUploadingImage(false);
         }
-
-        const { data } = supabase.storage.from('blogs').getPublicUrl(filePath);
-        updateBlock(id, "imageUrl", data.publicUrl);
-        setLoading(false);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        const slug = slugify(title) + '-' + Date.now().toString().slice(-4); // Ensure uniqueness
+        try {
+            if (!title.trim()) {
+                throw new Error("Title is required");
+            }
 
-        const { error } = await supabase
-            .from('articles')
-            .insert({
+            const slug = slugify(title) + '-' + Date.now().toString().slice(-4); // Ensure uniqueness
+
+            const result = await submitArticle({
                 title,
                 slug,
-                content: { blocks, excerpt }, // Store blocks and excerpt in JSONB
-                published: true // Default to published for now, or add a toggle
+                content: { blocks, excerpt, image_url: imageUrl }, // Store fallback in JSONB as well
+                published: true, // Default to published for now, or add a toggle
+                notifySubscribers
             });
 
-        if (error) {
-            console.error(error);
-            alert("Error saving article: " + error.message);
-            setLoading(false);
-        } else {
-            router.push("/admin/blog");
+            if (result.error) {
+                console.error("Action error:", result.error);
+                throw new Error(result.error);
+            }
+            setIsPublished(true);
+            toast.success("Articol publicat cu succes!");
+            setTimeout(() => {
+                router.push("/admin/blog");
+                router.refresh();
+            }, 1500);
+            
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Error saving article: " + err.message);
+            setLoading(false); // Reset loading purely only on error
         }
     };
 
@@ -121,10 +93,10 @@ export default function NewArticle() {
                 <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">New Article</h1>
                 <button
                     onClick={handleSubmit}
-                    disabled={loading}
-                    className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
+                    disabled={loading || isPublished || uploadingImage}
+                    className="bg-red-600 px-6 py-2.5 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-all disabled:opacity-50"
                 >
-                    {loading ? "Publishing..." : "Publish"}
+                    {isPublished ? "Published!" : loading ? "Publishing..." : "Publish"}
                 </button>
             </div>
 
@@ -142,6 +114,25 @@ export default function NewArticle() {
                         />
                     </div>
                     <div>
+                        <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Thumbnail Image</label>
+                        <div className="flex gap-4 items-center">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleThumbnailUpload}
+                                disabled={uploadingImage}
+                                className="block w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 transition-colors"
+                            />
+                            {uploadingImage && <span className="text-zinc-500 text-sm">Uploading...</span>}
+                        </div>
+                        {imageUrl && (
+                            <div className="mt-4">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={imageUrl} alt="Thumbnail preview" className="w-full max-w-sm rounded-lg object-cover" />
+                            </div>
+                        )}
+                    </div>
+                    <div>
                         <label className="block text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-2">Excerpt</label>
                         <textarea
                             value={excerpt}
@@ -151,165 +142,22 @@ export default function NewArticle() {
                             placeholder="Brief summary..."
                         />
                     </div>
+                    <div className="flex items-center gap-3 pt-2">
+                        <input 
+                            type="checkbox" 
+                            id="notify_subs" 
+                            checked={notifySubscribers}
+                            onChange={(e) => setNotifySubscribers(e.target.checked)}
+                            className="w-5 h-5 accent-red-600 cursor-pointer"
+                        />
+                        <label htmlFor="notify_subs" className="text-zinc-300 font-medium cursor-pointer">
+                            Trimite notificare abonaților pe email (Newsletter)
+                        </label>
+                    </div>
                 </div>
 
-                {/* Blocks Editor */}
-                <div className="space-y-4">
-                    {blocks.map((block, index) => (
-                        <div key={block.id} className="group relative bg-zinc-900 border border-zinc-800 rounded-lg p-4 transition-all hover:border-zinc-700">
-                            {/* Block Controls (Absolute) */}
-                            <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                <button onClick={() => moveBlock(index, -1)} className="p-1.5 text-zinc-400 hover:text-white bg-black/50 rounded" title="Move Up">
-                                    <ArrowUpIcon className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => moveBlock(index, 1)} className="p-1.5 text-zinc-400 hover:text-white bg-black/50 rounded" title="Move Down">
-                                    <ArrowDownIcon className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => removeBlock(block.id)} className="p-1.5 text-red-500 hover:text-red-400 bg-black/50 rounded" title="Delete">
-                                    <TrashIcon className="w-4 h-4" />
-                                </button>
-                            </div>
-
-                            {/* Block Content Input */}
-                            <div className="mr-8">
-                                {block.type === "heading" && (
-                                    <input
-                                        type="text"
-                                        value={block.content}
-                                        onChange={(e) => updateBlock(block.id, "content", e.target.value)}
-                                        className="w-full bg-transparent text-white text-2xl font-bold outline-none placeholder:text-zinc-600"
-                                        placeholder="Heading..."
-                                        autoFocus
-                                    />
-                                )}
-                                {block.type === "paragraph" && (
-                                    <textarea
-                                        value={block.content}
-                                        onChange={(e) => updateBlock(block.id, "content", e.target.value)}
-                                        rows={Math.max(3, block.content.split('\n').length)}
-                                        className="w-full bg-transparent text-zinc-300 outline-none resize-none placeholder:text-zinc-600"
-                                        placeholder="Write your paragraph here..."
-                                        autoFocus
-                                    />
-                                )}
-                                {block.type === "image" && (
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-zinc-800 rounded">
-                                                <PhotoIcon className="w-6 h-6 text-zinc-400" />
-                                            </div>
-                                            <input
-                                                type="url"
-                                                value={block.imageUrl || ""}
-                                                onChange={(e) => updateBlock(block.id, "imageUrl", e.target.value)}
-                                                className="flex-1 bg-black/50 border border-zinc-800 rounded p-2 text-white text-sm outline-none focus:border-red-600"
-                                                placeholder="Image URL (e.g., https://...)"
-                                                autoFocus
-                                            />
-                                            <label className="cursor-pointer bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition flex items-center gap-2 text-sm font-semibold whitespace-nowrap">
-                                                <span>Upload</span>
-                                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, block.id)} />
-                                            </label>
-                                        </div>
-                                        {block.imageUrl && (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={block.imageUrl} alt="Preview" className="max-h-64 rounded bg-black/20" />
-                                        )}
-                                        <input
-                                            type="text"
-                                            value={block.caption || ""}
-                                            onChange={(e) => updateBlock(block.id, "caption", e.target.value)}
-                                            className="w-full bg-transparent text-zinc-500 text-sm outline-none text-center italic"
-                                            placeholder="Image caption (optional)..."
-                                        />
-                                    </div>
-                                )}
-                                {block.type === "image-text" && (
-                                    <div className="flex flex-col gap-4">
-                                        {/* Controls Row */}
-                                        <div className="flex items-center gap-4 border-b border-zinc-800 pb-4 mb-2">
-                                            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Layout:</span>
-                                            <button
-                                                onClick={() => updateBlock(block.id, "imageSide", "left")}
-                                                className={`px-3 py-1 text-xs rounded uppercase font-bold tracking-wider transition-colors ${block.imageSide === "left" ? "bg-red-600 text-white" : "bg-black/50 text-zinc-400 hover:text-white"}`}
-                                            >
-                                                Image Left
-                                            </button>
-                                            <button
-                                                onClick={() => updateBlock(block.id, "imageSide", "right")}
-                                                className={`px-3 py-1 text-xs rounded uppercase font-bold tracking-wider transition-colors ${block.imageSide === "right" ? "bg-red-600 text-white" : "bg-black/50 text-zinc-400 hover:text-white"}`}
-                                            >
-                                                Image Right
-                                            </button>
-                                        </div>
-
-                                        <div className={`flex flex-col md:flex-row gap-6 ${block.imageSide === "right" ? "md:flex-row-reverse" : ""}`}>
-                                            {/* Image Side */}
-                                            <div className="flex-1 space-y-3">
-                                                <div className="flex items-center gap-2">
-                                                    <PhotoIcon className="w-5 h-5 text-zinc-400" />
-                                                    <input
-                                                        type="url"
-                                                        value={block.imageUrl || ""}
-                                                        onChange={(e) => updateBlock(block.id, "imageUrl", e.target.value)}
-                                                        className="w-full bg-black/50 border border-zinc-800 rounded p-2 text-white text-sm outline-none focus:border-red-600"
-                                                        placeholder="Image URL..."
-                                                    />
-                                                    <label className="cursor-pointer bg-zinc-800 px-3 py-2 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition flex items-center gap-2 text-sm font-semibold whitespace-nowrap">
-                                                        <span>Upload</span>
-                                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, block.id)} />
-                                                    </label>
-                                                </div>
-                                                {block.imageUrl ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img src={block.imageUrl} alt="Preview" className="w-full rounded bg-black/20 object-cover" />
-                                                ) : (
-                                                    <div className="w-full aspect-video bg-black/20 rounded border border-zinc-800 border-dashed flex items-center justify-center text-zinc-600 text-sm">
-                                                        No image
-                                                    </div>
-                                                )}
-                                                <input
-                                                    type="text"
-                                                    value={block.caption || ""}
-                                                    onChange={(e) => updateBlock(block.id, "caption", e.target.value)}
-                                                    className="w-full bg-transparent text-zinc-500 text-xs outline-none text-center italic"
-                                                    placeholder="Caption..."
-                                                />
-                                            </div>
-
-                                            {/* Text Side */}
-                                            <div className="flex-1">
-                                                <textarea
-                                                    value={block.content}
-                                                    onChange={(e) => updateBlock(block.id, "content", e.target.value)}
-                                                    rows={8}
-                                                    className="w-full h-full bg-black/20 border border-zinc-800 rounded p-4 text-zinc-300 outline-none resize-none placeholder:text-zinc-600 focus:border-red-600"
-                                                    placeholder="Write your text here..."
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Add Block Menu */}
-                <div className="flex gap-4 justify-center py-8 border-t border-zinc-900 border-dashed">
-                    <button onClick={() => addBlock("heading")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <span className="font-bold text-lg">H</span> Heading
-                    </button>
-                    <button onClick={() => addBlock("paragraph")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <Bars3BottomLeftIcon className="w-5 h-5" /> Paragraph
-                    </button>
-                    <button onClick={() => addBlock("image")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <PhotoIcon className="w-5 h-5" /> Image
-                    </button>
-                    <button onClick={() => addBlock("image-text")} className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all bg-zinc-900/50">
-                        <ArrowsRightLeftIcon className="w-5 h-5" /> Split (Img+Txt)
-                    </button>
-                </div>
+                {/* Blocks Editor Component */}
+                <BlockEditor blocks={blocks} setBlocks={setBlocks} supabaseClient={supabase} />
             </div>
         </div>
     );

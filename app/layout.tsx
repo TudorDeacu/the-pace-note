@@ -4,6 +4,9 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { TranslationProvider } from "@/context/TranslationContext";
+import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "react-hot-toast";
+import CookieConsent from "@/components/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +22,6 @@ export const metadata: Metadata = {
   title: "The Pace Note",
   description: "Motorsportul românesc și cultura auto din România.",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,6 +36,36 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               {children}
+              <CookieConsent />
+              <Analytics />
+              <Toaster 
+                position="bottom-center"
+                toastOptions={{
+                  style: {
+                    background: '#18181b', // zinc-900
+                    color: '#fff',
+                    border: '1px solid #27272a', // zinc-800
+                    borderRadius: '8px',
+                    padding: '16px',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                  },
+                  success: {
+                    iconTheme: {
+                      primary: '#22c55e', // green-500
+                      secondary: '#fff',
+                    },
+                  },
+                  error: {
+                    iconTheme: {
+                      primary: '#e9482f', // new brand color
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
             </CartProvider>
           </AuthProvider>
         </TranslationProvider>

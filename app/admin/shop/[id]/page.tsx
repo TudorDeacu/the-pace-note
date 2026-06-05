@@ -5,6 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { PlusIcon, TrashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
+import T from "@/components/T";
 
 interface Product {
     id: string;
@@ -23,6 +26,7 @@ export default function EditProduct() {
     const supabase = createClient();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -58,7 +62,7 @@ export default function EditProduct() {
                 setSizes(data.sizes || []);
             } else {
                 console.error("Error fetching product:", error);
-                alert("Product not found");
+                toast.error("Produsul nu a fost găsit");
                 router.push("/admin/shop");
             }
             setLoading(false);
@@ -93,7 +97,7 @@ export default function EditProduct() {
             .upload(filePath, file);
 
         if (uploadError) {
-            alert('Error uploading image: ' + uploadError.message);
+            toast.error('Eroare la încărcarea imaginii: ' + uploadError.message);
             setSaving(false);
             return;
         }
@@ -142,27 +146,28 @@ export default function EditProduct() {
             .eq('id', params?.id);
 
         if (error) {
-            alert("Error updating product: " + error.message);
+            toast.error("Eroare la actualizarea produsului: " + error.message);
             setSaving(false);
         } else {
+            toast.success("Produs actualizat!");
             router.push("/admin/shop");
         }
     };
 
     // Delete Handler
-    const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
-
+    const executeDelete = async () => {
         setSaving(true);
+        setIsDeleteModalOpen(false);
         const { error } = await supabase
             .from('products')
             .delete()
             .eq('id', params?.id);
 
         if (error) {
-            alert("Error deleting product: " + error.message);
+            toast.error("Eroare la ștergerea produsului: " + error.message);
             setSaving(false);
         } else {
+            toast.success("Produs șters!");
             router.push("/admin/shop");
         }
     };
@@ -172,25 +177,25 @@ export default function EditProduct() {
     return (
         <div className="pb-20 max-w-4xl mx-auto">
             <Link href="/admin/shop" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Shop
+                <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Magazin</T>
             </Link>
 
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white">Edit Product</h1>
+                <h1 className="text-3xl font-bold uppercase tracking-tighter text-white"><T>Editează Produsul</T></h1>
                 <button
                     type="button"
-                    onClick={handleDelete}
+                    onClick={() => setIsDeleteModalOpen(true)}
                     disabled={saving}
                     className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 text-red-500 px-4 py-2 rounded font-bold uppercase tracking-widest hover:bg-red-900/20 hover:border-red-900 transition-colors disabled:opacity-50"
                 >
-                    <TrashIcon className="w-5 h-5" /> Delete Product
+                    <TrashIcon className="w-5 h-5" /> <T>Șterge Produsul</T>
                 </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-zinc-900 border border-zinc-800 p-8 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2">Product Name</label>
+                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2"><T>Nume Produs</T></label>
                         <input
                             type="text"
                             required
@@ -200,7 +205,7 @@ export default function EditProduct() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2">Dimensions (Optional)</label>
+                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2"><T>Dimensiuni (Opțional)</T></label>
                         <input
                             type="text"
                             className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-red-600 sm:text-sm px-3"
@@ -213,7 +218,7 @@ export default function EditProduct() {
 
                 <div className="grid grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2">Price (RON)</label>
+                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2"><T>Preț (RON)</T></label>
                         <input
                             type="number"
                             required
@@ -224,7 +229,7 @@ export default function EditProduct() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2">Stock</label>
+                        <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2"><T>Stoc</T></label>
                         <input
                             type="number"
                             required
@@ -237,7 +242,7 @@ export default function EditProduct() {
 
                 {/* Sizes Section */}
                 <div>
-                    <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2">Sizes (Optional)</label>
+                    <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2"><T>Mărimi (Opțional)</T></label>
                     <div className="flex flex-wrap gap-2">
                         {sizes.map((size, index) => (
                             <div key={index} className="flex items-center gap-1">
@@ -250,14 +255,14 @@ export default function EditProduct() {
                                 <button type="button" onClick={() => removeSizeField(index)} className="text-zinc-500 hover:text-red-500"><TrashIcon className="w-4 h-4" /></button>
                             </div>
                         ))}
-                        <button type="button" onClick={addSizeField} className="px-3 py-1 bg-zinc-800 text-xs text-white uppercase font-bold rounded hover:bg-zinc-700">Add Size</button>
+                        <button type="button" onClick={addSizeField} className="px-3 py-1 bg-zinc-800 text-xs text-white uppercase font-bold rounded hover:bg-zinc-700"><T>Adaugă Mărime</T></button>
                     </div>
                     <p className="text-xs text-zinc-500 mt-1">e.g. S, M, L, XL</p>
                 </div>
 
                 {/* Images Section */}
                 <div>
-                    <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2">Images</label>
+                    <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2"><T>Imagini</T></label>
                     <div className="space-y-3">
                         {images.map((img, index) => (
                             <div key={index} className="flex gap-2">
@@ -274,18 +279,18 @@ export default function EditProduct() {
                             </div>
                         ))}
                         <button type="button" onClick={addImageField} className="text-sm text-red-500 font-bold uppercase tracking-wide flex items-center gap-1">
-                            <PlusIcon className="w-4 h-4" /> Add Another Image
+                            <PlusIcon className="w-4 h-4" /> <T>Adaugă altă imagine</T>
                         </button>
 
                         <div className="mt-4 border-t border-zinc-800 pt-4">
-                            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">Or Upload</label>
+                            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2"><T>Sau Încarcă</T></label>
                             <input type="file" accept="image/*" onChange={handleFileUpload} className="block w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700" />
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2">Description</label>
+                    <label className="block text-sm font-semibold text-white uppercase tracking-widest mb-2"><T>Descriere</T></label>
                     <textarea
                         rows={5}
                         className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-red-600 sm:text-sm px-3"
@@ -300,10 +305,19 @@ export default function EditProduct() {
                         disabled={saving}
                         className="bg-red-600 px-8 py-3 rounded text-white font-bold uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Update Product"}
+                        {saving ? <T>Se salvează...</T> : <T>Actualizează Produsul</T>}
                     </button>
                 </div>
             </form>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                title="Șterge Produsul"
+                description="Acest produs va fi șters definitiv. Ești sigur că vrei să continui?"
+                confirmText="ȘTERGE"
+                onConfirm={executeDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
         </div>
     );
 }

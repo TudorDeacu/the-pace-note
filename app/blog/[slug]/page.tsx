@@ -1,12 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { decryptUrlParam } from "@/utils/encryption";
+import T from "@/components/T";
 
 interface Block {
     id: string;
@@ -17,26 +15,24 @@ interface Block {
     imageSide?: "left" | "right";
 }
 
-import blogTrackDay from "../../images/blog_track_day.png";
-import blogSimRacing from "../../images/blog_sim_racing.png";
-import blogMaintenance from "../../images/blog_maintenance.png";
+
 
 const DEMO_CONTENT: Record<string, Block[]> = {
     "mastering-the-track": [
         { id: "1", type: "heading", content: "The Perfect Racing Line" },
         { id: "2", type: "paragraph", content: "Understanding the geometric racing line is crucial for fast lap times. It's about maximizing the radius of the turn to maintain the highest possible average speed." },
-        { id: "3", type: "image", content: "", imageUrl: blogTrackDay.src, caption: "Sunset session at the Nürburgring." },
+        { id: "3", type: "image", content: "", caption: "Sunset session at the Nürburgring." },
         { id: "4", type: "paragraph", content: "Always look ahead. Your hands follow your eyes. If you look at the barrier, you will hit the barrier. Look at the apex, then immediately look for the exit." }
     ],
     "ultimate-sim-racing-setup": [
         { id: "1", type: "heading", content: "Choosing the Right Wheel Base" },
         { id: "2", type: "paragraph", content: "Direct Drive is the gold standard. It provides 1:1 force feedback without belts or gears dampening the detail." },
-        { id: "3", type: "image-text", content: "A solid rig is just as important as the wheel. If your seat flexes under braking, you lose consistency.", imageUrl: blogSimRacing.src, caption: "Triple monitor setup with ambient lighting." },
+        { id: "3", type: "image-text", content: "A solid rig is just as important as the wheel. If your seat flexes under braking, you lose consistency.", caption: "Triple monitor setup with ambient lighting." },
     ],
     "essential-maintenance-tips": [
         { id: "1", type: "heading", content: "Fluids are Life" },
         { id: "2", type: "paragraph", content: "Oil, brake fluid, coolant. Check them regularly. High performance driving degrades fluids much faster than daily commuting." },
-        { id: "3", type: "image", content: "", imageUrl: blogMaintenance.src, caption: "Regular checks prevent catastrophic failures." },
+        { id: "3", type: "image", content: "", caption: "Regular checks prevent catastrophic failures." },
     ]
 };
 
@@ -45,82 +41,72 @@ interface Article {
     title: string;
     slug: string;
     content: { blocks: Block[], excerpt?: string };
+    excerpt?: string;
     published: boolean;
     created_at: string;
 }
 
-export default function ArticlePage() {
-    const params = useParams();
-    const [article, setArticle] = useState<Article | null>(null);
-    const [loading, setLoading] = useState(true);
-    const supabase = createClient();
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const realSlug = decryptUrlParam(slug);
+    const supabase = await createClient();
+    
+    let article: Article | null = null;
 
-    useEffect(() => {
-        async function fetchArticle() {
-            if (!params?.slug) return;
+    if (DEMO_CONTENT[realSlug]) {
+        const demoTitle = realSlug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        article = {
+            id: "demo",
+            title: demoTitle,
+            slug: realSlug,
+            content: { blocks: DEMO_CONTENT[realSlug] },
+            published: true,
+            created_at: new Date().toISOString()
+        };
+    } else {
+        const { data, error } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('slug', realSlug)
+            .single();
 
-            // Check for demo article first
-            const demoSlug = typeof params.slug === 'string' ? params.slug : params.slug[0];
-            if (DEMO_CONTENT[demoSlug]) {
-                const demoTitle = demoSlug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-                setArticle({
-                    id: "demo",
-                    title: demoTitle,
-                    slug: demoSlug,
-                    content: { blocks: DEMO_CONTENT[demoSlug] },
-                    published: true,
-                    created_at: new Date().toISOString()
-                });
-                setLoading(false);
-                return;
-            }
-
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('slug', params.slug)
-                .single();
-
-            if (data) {
-                setArticle(data);
-            } else {
-                console.error("Error fetching article:", error);
-            }
-            setLoading(false);
+        if (data) {
+            article = data;
+            // Increment view count in the background
+            await supabase.rpc('increment_article_views', { article_slug: realSlug });
+        } else {
+            console.error("Error fetching article:", error);
         }
-        fetchArticle();
-    }, [params?.slug]);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <p className="text-white">Loading article...</p>
-            </div>
-        );
     }
 
-    if (!article || !article.published) { // Optionally hide unpublished even if known slug
+    if (!article || !article.published) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center flex-col gap-4">
-                <p className="text-white">Article not found.</p>
-                <Link href="/blog" className="text-red-500 hover:text-red-400">Back to Blog</Link>
+                <p className="text-white"><T>Articolul nu a fost găsit.</T></p>
+                <Link href="/blog" className="text-red-500 hover:text-red-400"><T>Înapoi la Blog</T></Link>
             </div>
         );
     }
 
     const blocks = article.content.blocks || [];
+    const excerpt = article.excerpt || article.content?.excerpt || "";
 
     return (
         <div className="min-h-screen bg-black text-white">
             <Navbar />
             <main className="pt-32 px-6 lg:px-8 max-w-4xl mx-auto pb-20">
                 <Link href="/blog" className="inline-flex items-center text-zinc-400 hover:text-white mb-8 transition-colors uppercase text-sm font-bold tracking-widest">
-                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> Back to Blog
+                    <ArrowLeftIcon className="w-4 h-4 mr-2" /> <T>Înapoi la Blog</T>
                 </Link>
 
                 <article>
                     <header className="mb-12 text-center">
                         <h1 className="text-4xl font-bold uppercase tracking-tighter sm:text-5xl mb-6">{article.title}</h1>
+                        {excerpt && (
+                            <p className="text-xl md:text-2xl text-zinc-300 font-medium tracking-wide mb-6 leading-relaxed max-w-3xl mx-auto">
+                                {excerpt}
+                            </p>
+                        )}
                         <time className="text-zinc-500 text-sm">
                             {new Date(article.created_at).toLocaleDateString()}
                         </time>
