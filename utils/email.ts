@@ -15,9 +15,6 @@ export function getEmailTemplate(title: string, bodyContent: string, imageUrl?: 
         ? `<img src="${imageUrl}" width="100%" style="display: block; border-top-left-radius: 4px; border-top-right-radius: 4px;">`
         : '';
 
-    // Fallback logo URL (can be replaced with actual hosted logo URL later)
-    const logoUrl = "https://thepacenote.ro/images/logo.png"; // Replace with your actual logo URL
-
     return `
     <!DOCTYPE html>
     <html lang="ro">

@@ -1,9 +1,15 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { getAdminClient } from "@/utils/supabase/server";
 import { resend, SENDER_EMAIL, getEmailTemplate } from "@/utils/email";
 
 export async function broadcastNewsletter(subject: string, messageHtml: string, imageUrl?: string) {
+    // Only admins may broadcast to the whole subscriber list (defense in depth).
+    const supabase = await getAdminClient();
+    if (!supabase) {
+        return { error: "Unauthorized" };
+    }
+
     if (!resend) {
         return { error: "Resend API key nu este configurat. Verifică fișierul .env" };
     }
@@ -11,8 +17,6 @@ export async function broadcastNewsletter(subject: string, messageHtml: string, 
     if (!subject || !messageHtml) {
         return { error: "Subiectul și mesajul sunt obligatorii." };
     }
-
-    const supabase = await createClient();
 
     try {
         // Fetch all subscribed users

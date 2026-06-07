@@ -9,10 +9,21 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Text is required' }, { status: 400 });
         }
 
+        // Guard against abuse of the open translations cache (anyone can POST here).
+        // UI strings are short; reject anything unreasonably long.
+        if (text.length > 2000) {
+            return NextResponse.json({ error: 'Text too long' }, { status: 413 });
+        }
+
+        // Only allow the languages we actually support as a target.
+        if (targetLang !== 'en') {
+            return NextResponse.json({ error: 'Unsupported target language' }, { status: 400 });
+        }
+
         const supabase = await createClient();
 
         // 1. Check database cache first
-        const { data: cachedTranslation, error: cacheError } = await supabase
+        const { data: cachedTranslation } = await supabase
             .from('translations')
             .select('en_text')
             .eq('ro_text', text)

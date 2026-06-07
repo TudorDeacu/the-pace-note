@@ -41,5 +41,31 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    // ── Server-side protection for admin areas ──────────────────────────────
+    // The client-side AdminLayout is only for UX; this is the real enforcement.
+    const path = request.nextUrl.pathname
+    const isProtected =
+        (path.startsWith('/admin') && path !== '/admin/login') || path.startsWith('/seed')
+
+    if (isProtected) {
+        if (!user) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/admin/login'
+            return NextResponse.redirect(url)
+        }
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+        if (profile?.role !== 'admin') {
+            const url = request.nextUrl.clone()
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
+    }
+
     return response
 }

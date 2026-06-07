@@ -1,10 +1,11 @@
 'use server'
 
-import { createClient } from "@/utils/supabase/server"
+import { getAdminClient } from "@/utils/supabase/server"
 import { broadcastNewsletter } from "./newsletter/actions"
 
 export async function submitArticle(data: any) {
-    const supabase = await createClient()
+    const supabase = await getAdminClient()
+    if (!supabase) return { error: "Unauthorized" }
     try {
         const { notifySubscribers, ...articleData } = data;
         
@@ -38,7 +39,8 @@ export async function submitArticle(data: any) {
 }
 
 export async function updateArticle(id: string, data: any) {
-    const supabase = await createClient()
+    const supabase = await getAdminClient()
+    if (!supabase) return { error: "Unauthorized" }
     try {
         const { error, data: res } = await supabase.from('articles').update(data).eq('id', id).select()
         if (error) return { error: error.message }
@@ -49,7 +51,8 @@ export async function updateArticle(id: string, data: any) {
 }
 
 export async function submitProject(data: any) {
-    const supabase = await createClient()
+    const supabase = await getAdminClient()
+    if (!supabase) return { error: "Unauthorized" }
     try {
         const { error, data: res } = await supabase.from('projects').insert([data]).select()
         if (error) return { error: error.message }
@@ -60,7 +63,8 @@ export async function submitProject(data: any) {
 }
 
 export async function updateProject(id: string, data: any) {
-    const supabase = await createClient()
+    const supabase = await getAdminClient()
+    if (!supabase) return { error: "Unauthorized" }
     try {
         const { error, data: res } = await supabase.from('projects').update(data).eq('id', id).select()
         if (error) return { error: error.message }
