@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import T from "@/components/T";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import GoogleIcon from "@/components/GoogleIcon";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -135,7 +136,25 @@ export default function Login() {
                             </button>
                         </form>
 
-                        {/* Google login temporarily disabled */}
+                        <div className="mt-6">
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                    <div className="w-full border-t border-zinc-800" />
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                                    <span className="bg-black px-3 text-zinc-500"><T>sau</T></span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => handleSocialLogin('google')}
+                                disabled={loading}
+                                className="mt-6 w-full flex items-center justify-center gap-3 bg-white text-black font-semibold py-3 rounded hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                            >
+                                <GoogleIcon />
+                                <T>Continuă cu Google</T>
+                            </button>
+                        </div>
 
                         <p className="mt-6 text-center text-zinc-500 text-sm">
                             <T>Nu ai cont?</T>{" "}

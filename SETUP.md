@@ -114,8 +114,29 @@ tightens the loose policies.
 **Client Secret** → Save. That's it — the app already calls
 `signInWithOAuth({ provider: 'google' })` and routes through `/auth/callback`.
 
-> Test: click "Sign in with Google" on `/login`. New Google users land on
+> Test: click "Continuă cu Google" on `/login`. New Google users land on
 > `/login/complete-profile` to set a username, then `/account`.
+
+### 2.3 Making the Google screen say "thepacenote.ro" (not the supabase.co URL)
+When a user picks their account, Google shows *"to continue to **X**"* and
+*"**X** wants to access your Google Account"*. What **X** is depends on the OAuth
+redirect domain:
+
+- **Out of the box**, the redirect is `…supabase.co`, so Google shows your Supabase
+  project URL. Setting the **OAuth consent screen → App name = "The Pace Note"** and
+  uploading a logo improves the branding, but the **domain line will still show the
+  supabase.co host**.
+- **To literally show `thepacenote.ro`**, the OAuth callback must live on your own
+  domain. That requires the **Supabase Custom Domain add-on** (Pro plan, ~$10/mo):
+  1. Supabase → **Project Settings → Custom Domains** → add e.g. `thepacenote.ro`
+     (or a subdomain like `auth.thepacenote.ro`) and verify the DNS records.
+  2. Your auth callback becomes `https://<custom-domain>/auth/v1/callback`.
+  3. Update Google Cloud → Credentials → **Authorized redirect URIs** to that new
+     URL, and Supabase → Auth → URL config accordingly.
+  4. Now Google shows *"to continue to thepacenote.ro"*.
+
+If the paid custom domain isn't worth it yet, set the App name + logo (free) — most
+users recognize the branded name even with the supabase.co host shown underneath.
 
 ---
 

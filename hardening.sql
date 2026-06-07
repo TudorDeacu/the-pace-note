@@ -6,6 +6,22 @@
 -- ============================================================================
 
 -- ─────────────────────────────────────────────────────────────────────────
+-- 0) Helper used by every admin policy below.
+--    MUST be SECURITY DEFINER so its internal read of `profiles` BYPASSES RLS.
+--    A plain "exists (select 1 from profiles ...)" inside a profiles policy
+--    causes "infinite recursion detected in policy for relation profiles".
+-- ─────────────────────────────────────────────────────────────────────────
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
+$$;
+
+-- ─────────────────────────────────────────────────────────────────────────
 -- 1) FIX PII LEAK: profiles must NOT be world-readable.
 --    The old policy "Public profiles are viewable by everyone" (USING true)
 --    exposed every user's email, phone and address to anyone with the anon key.
@@ -21,7 +37,7 @@ create policy "Users can view own profile."
 
 create policy "Admins can view all profiles."
   on public.profiles for select
-  using ( exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin') );
+  using ( public.is_admin() );
 
 -- Prevent users from privilege-escalating by editing their own `role`.
 -- (The existing UPDATE policy allows updating own row; this trigger pins `role`

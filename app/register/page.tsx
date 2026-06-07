@@ -11,6 +11,7 @@ import { useTranslationContext } from "@/context/TranslationContext";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import { sendWelcomeEmailForRegistration } from "@/app/newsletter/actions";
+import GoogleIcon from "@/components/GoogleIcon";
 
 export default function Register() {
     const { t } = useTranslationContext();
@@ -212,7 +213,19 @@ export default function Register() {
                                 </form>
                             </div>
 
-                            {/* Google signup temporarily disabled */}
+                            {/* Right Side: Social signup */}
+                            <div className="flex-1 flex flex-col justify-center border-t md:border-t-0 md:border-l border-zinc-800 pt-8 md:pt-0 md:pl-8">
+                                <p className="text-center text-zinc-400 text-sm mb-4 uppercase tracking-widest"><T>Înregistrare rapidă</T></p>
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialSignup('google')}
+                                    disabled={loading}
+                                    className="w-full flex items-center justify-center gap-3 bg-white text-black font-semibold py-3 rounded hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                                >
+                                    <GoogleIcon />
+                                    <T>Continuă cu Google</T>
+                                </button>
+                            </div>
                         </div>
 
                         <p className="mt-8 text-center text-zinc-500 text-sm">
